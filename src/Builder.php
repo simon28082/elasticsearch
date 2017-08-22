@@ -2,17 +2,68 @@
 
 namespace CrCms\ElasticSearch;
 
+use Elasticsearch\Client;
+use Elasticsearch\ClientBuilder;
+use Illuminate\Support\Collection;
+use RuntimeException;
+use stdClass;
+
 /**
  * Class Builder
  *
- * @package CrCms
+ * @package CrCms\ElasticSearch
+ * @author simon
  */
 class Builder
 {
+    /**
+     * @var array
+     */
     public $wheres = [];
 
+    /**
+     * @var array
+     */
     public $columns = [];
 
+    /**
+     * @var null
+     */
+    public $offset = null;
+
+    /**
+     * @var null
+     */
+    public $limit = null;
+
+    /**
+     * @var array
+     */
+    public $orders = [];
+
+    /**
+     * @var array
+     */
+    public $aggs = [];
+
+    /**
+     * @var string
+     */
+    public $index = '';
+
+    /**
+     * @var string
+     */
+    public $type = '';
+
+    /**
+     * @var string
+     */
+    public $scroll = '';
+
+    /**
+     * @var array
+     */
     public $operators = [
         '=' => 'eq',
         '>' => 'gt',
@@ -21,104 +72,249 @@ class Builder
         '<=' => 'lte',
     ];
 
-    public $offset = null;
-
-    public $limit = null;
-
-    public $orders = [];
-
-    public $aggs = [];
-
-    public $index = '';
-
-    public $type = '';
-
+    /**
+     * @var Grammar|null
+     */
     protected $grammar = null;
 
-    public function __construct()
+    /**
+     * @var \Elasticsearch\Client|null
+     */
+    protected $elastisearch = null;
+
+    /**
+     * @var array
+     */
+    protected $queryLogs = [];
+
+    /**
+     * @var bool
+     */
+    protected $enableQueryLog = false;
+
+    /**
+     * @var array
+     */
+    protected $config = [];
+
+    /**
+     * Builder constructor.
+     */
+    public function __construct(array $config, Grammar $grammar, Client $client)
     {
-        $this->grammar =new Grammar();
+        $this->config = $config;
+        $this->setGrammar($grammar);
+        $this->setElasticSearch($client);
+        $this->setDefault();
+    }
+
+    /**
+     * @return void
+     */
+    protected function setDefault()
+    {
+        if (!empty($this->config['index'])) {
+            $this->index = $this->config['index'];
+        }
+
+        if (!empty($this->config['type'])) {
+            $this->type = $this->config['type'];
+        }
+    }
+
+    /**
+     * @param $index
+     * @return Builder
+     */
+    public function index($index): self
+    {
+        $this->index = $index;
+
+        return $this;
+    }
+
+    /**
+     * @param $type
+     * @return Builder
+     */
+    public function type($type): self
+    {
+        $this->type = $type;
+
+        return $this;
     }
 
 
-    public function limit(int $value)
+    /**
+     * @param int $value
+     * @return Builder
+     */
+    public function limit(int $value): self
     {
         $this->limit = $value;
+
         return $this;
     }
 
-    public function offset(int $value)
+    /**
+     * @param int $value
+     * @return Builder
+     */
+    public function offset(int $value): self
     {
         $this->offset = $value;
+
         return $this;
     }
 
-    public function orderBy(string $field,$sort)
+    /**
+     * @param string $field
+     * @param $sort
+     * @return Builder
+     */
+    public function orderBy(string $field, $sort): self
     {
         $this->orders[$field] = $sort;
+
         return $this;
     }
 
-    public function agg($field,$type)
+    /**
+     * @param $field
+     * @param $type
+     * @return Builder
+     */
+    public function aggBy($field, $type): self
     {
         is_array($field) ?
             $this->aggs[] = $field :
             $this->aggs[$field] = $type;
+
         return $this;
     }
 
-    public function select( $columns)
+    /**
+     * @param string $scroll
+     * @return Builder
+     */
+    public function scroll(string $scroll): self
+    {
+        $this->scroll = $scroll;
+
+        return $this;
+    }
+
+    /**
+     * @param $columns
+     * @return Builder
+     */
+    public function select($columns): self
     {
         $this->columns = is_array($columns) ? $columns : func_get_args();
+
         return $this;
     }
 
 
-    public function whereMatch($field, $value, $boolean = 'and')
+    /**
+     * @param $field
+     * @param $value
+     * @param string $boolean
+     * @return Builder
+     */
+    public function whereMatch($field, $value, $boolean = 'and'): self
     {
         return $this->where($field, '=', $value, 'match', $boolean);
     }
 
-    public function orWhereMatch($field, $value, $boolean = 'and')
+    /**
+     * @param $field
+     * @param $value
+     * @param string $boolean
+     * @return Builder
+     */
+    public function orWhereMatch($field, $value, $boolean = 'and'): self
     {
         return $this->whereMatch($field, $value, $boolean);
     }
 
 
-    public function whereTerm($field, $value, $boolean = 'and')
+    /**
+     * @param $field
+     * @param $value
+     * @param string $boolean
+     * @return Builder
+     */
+    public function whereTerm($field, $value, $boolean = 'and'): self
     {
         return $this->where($field, '=', $value, 'term', $boolean);
     }
 
-    public function orWhereTerm($field, $value, $boolean = 'or')
+    /**
+     * @param $field
+     * @param $value
+     * @param string $boolean
+     * @return Builder
+     */
+    public function orWhereTerm($field, $value, $boolean = 'or'): self
     {
         return $this->whereTerm($field, $value, $boolean);
     }
 
-
-    public function whereRange($field, $operator = null, $value = null, $boolean = 'and')
+    /**
+     * @param $field
+     * @param null $operator
+     * @param null $value
+     * @param string $boolean
+     * @return Builder
+     */
+    public function whereRange($field, $operator = null, $value = null, $boolean = 'and'): self
     {
         return $this->where($field, $operator, $value, 'range', $boolean);
     }
 
-    public function orWhereRange($field, $operator = null, $value = null)
+    /**
+     * @param $field
+     * @param null $operator
+     * @param null $value
+     * @return Builder
+     */
+    public function orWhereRange($field, $operator = null, $value = null): self
     {
         return $this->where($field, $operator, $value, 'or');
     }
 
-    public function whereBetween($field, array $values, $boolean = 'and')
+    /**
+     * @param $field
+     * @param array $values
+     * @param string $boolean
+     * @return Builder
+     */
+    public function whereBetween($field, array $values, $boolean = 'and'): self
     {
         return $this->where($field, null, $values, 'range', $boolean);
     }
 
-    public function orWhereBetween($field, array $values)
+    /**
+     * @param $field
+     * @param array $values
+     * @return Builder
+     */
+    public function orWhereBetween($field, array $values): self
     {
         return $this->whereBetween($field, $values, 'or');
     }
 
-    public function where($column, $operator = null, $value = null, $leaf = 'term', $boolean = 'and')
+    /**
+     * @param $column
+     * @param null $operator
+     * @param null $value
+     * @param string $leaf
+     * @param string $boolean
+     * @return Builder
+     */
+    public function where($column, $operator = null, $value = null, $leaf = 'term', $boolean = 'and'): self
     {
-
         if ($column instanceof \Closure) {
             return $this->whereNested($column, $boolean);
         }
@@ -139,8 +335,6 @@ class Builder
         }
 
         $type = 'Basic';
-//        $column = $field;
-
 
         $operator = $operator ? $this->operators[$operator] : $operator;
 
@@ -151,15 +345,28 @@ class Builder
         return $this;
     }
 
-    public function orWhere($field, $operator = null, $value = null, $leaf = 'term')
+    /**
+     * @param $field
+     * @param null $operator
+     * @param null $value
+     * @param string $leaf
+     * @return Builder
+     */
+    public function orWhere($field, $operator = null, $value = null, $leaf = 'term'): self
     {
         if (func_num_args() === 2) {
             list($value, $operator) = [$operator, '='];
         }
+
         return $this->where($field, $operator, $value, $leaf, 'or');
     }
 
-    public function whereNested(\Closure $callback, $boolean)
+    /**
+     * @param \Closure $callback
+     * @param $boolean
+     * @return Builder
+     */
+    public function whereNested(\Closure $callback, $boolean): self
     {
         $query = $this->newQuery();
 
@@ -168,94 +375,292 @@ class Builder
         return $this->addNestedWhereQuery($query, $boolean);
     }
 
-    public function addNestedWhereQuery($query, $boolean = 'and')
+    /**
+     * @return static
+     */
+    public function newQuery(): self
+    {
+        return new static($this->config, $this->grammar, $this->elastisearch);
+    }
+
+    /**
+     * @return Collection
+     */
+    public function get(): Collection
+    {
+        $results = $this->runQuery($this->grammar->compileSelect($this));
+
+        return $this->metaData($results);
+    }
+
+    /**
+     * @param int $page
+     * @param int $perPage
+     * @return Collection
+     */
+    public function paginate(int $page, int $perPage = 15)
+    {
+        $from = (($page * $perPage) - $perPage);
+
+        if (empty($this->offset)) {
+            $this->offset = $from;
+        }
+
+        if (empty($this->limit)) {
+            $this->limit = $perPage;
+        }
+
+        $results = $this->runQuery($this->grammar->compileSelect($this));
+
+        $data = collect($results['hits']['hits'])->map(function ($hit) {
+            return (object)array_merge($hit['_source'], ['_id' => $hit['_id']]);
+        });
+
+        return collect([
+            'total' => $results['hits']['total'],
+            'per_page' => $page <= 1 ? null : $page - 1,
+            'current_page' => $page,
+            'last_page' => intval(ceil($results['hits']['total'] / $perPage)),
+            'from' => $from,
+            'to' => $from + $perPage,
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * @param $id
+     * @return null|object
+     */
+    public function byId($id)
+    {
+        $query = $this->newQuery();
+
+        $result = $this->runQuery(
+            $query->whereTerm('_id', $id)->getGrammar()->compileSelect($query)
+        );
+
+        return isset($result['hits']['hits'][0]) ?
+            $this->sourceToObject($result['hits']['hits'][0]) :
+            null;
+    }
+
+    /**
+     * @param callable $callback
+     * @param int $limit
+     * @param string $scroll
+     * @return bool
+     */
+    public function chunk(callable $callback, $limit = 2000, $scroll = '10m')
+    {
+        if (empty($this->scroll)) {
+            $this->scroll = $scroll;
+        }
+
+        if (empty($this->limit)) {
+            $this->limit = $limit;
+        }
+
+        $results = $this->runQuery($this->grammar->compileSelect($this), 'search');
+
+        if ($results['hits']['total'] === 0) {
+            return null;
+        }
+
+        $total = $this->limit;
+        $whileNum = intval(floor($results['hits']['total'] / $this->limit));
+
+        do {
+            if (call_user_func($callback, $this->metaData($results)) === false) {
+                return false;
+            }
+
+            $results = $this->runQuery(['scroll_id' => $results['_scroll_id'], 'scroll' => $this->scroll], 'scroll');
+
+            $total += count($results['hits']['hits']);
+        } while ($whileNum--);
+    }
+
+    /**
+     * @param array $data
+     * @param null $id
+     * @param string $key
+     * @return stdClass
+     */
+    public function create(array $data, $id = null, $key = 'id'): stdClass
+    {
+        $id = $id ? $id : isset($data[$key]) ? $data[$key] : uniqid();
+
+        $result = $this->runQuery(
+            $this->grammar->compileCreate($this, $id, $data),
+            'create'
+        );
+
+        if (!isset($result['created']) || $result['created'] !== true) {
+            throw new RunTimeException('Create params: ' . json_encode(last($this->queryLogs)));
+        }
+
+        $data['_id'] = $id;
+        return (object)$data;
+    }
+
+    /**
+     * @param $id
+     * @param array $data
+     * @return bool
+     */
+    public function update($id, array $data): bool
+    {
+        $result = $this->runQuery($this->grammar->compileUpdate($this, $id, $data), 'update');
+
+        if (!isset($result['_version']) || $result['_version'] < 2) {
+            throw new RunTimeException('Update error params: ' . json_encode(last($this->queryLogs)));
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $id
+     * @return bool
+     */
+    public function delete($id)
+    {
+        $result = $this->runQuery([
+            'id' => $id,
+        ], 'delete');
+
+        if (empty($result)) {
+            throw new RunTimeException('Delete error params:' . json_encode(last($this->queryLogs)));
+        }
+
+        return true;
+    }
+
+    /**
+     * @return Grammar|null
+     */
+    public function getGrammar()
+    {
+        return $this->grammar;
+    }
+
+    /**
+     * @param Grammar $grammar
+     * @return $this
+     */
+    public function setGrammar(Grammar $grammar)
+    {
+        $this->grammar = $grammar;
+
+        return $this;
+    }
+
+    /**
+     * @param Client $client
+     * @return $this
+     */
+    public function setElasticSearch(Client $client)
+    {
+        $this->elastisearch = $client;
+
+        return $this;
+    }
+
+    /**
+     * @return Client|null
+     */
+    public function getElasticSearch()
+    {
+        return $this->elastisearch;
+    }
+
+    /**
+     * @return Builder
+     */
+    public function enableQueryLog(): self
+    {
+        $this->enableQueryLog = true;
+
+        return $this;
+    }
+
+    /**
+     * @return Builder
+     */
+    public function disableQueryLog(): self
+    {
+        $this->enableQueryLog = false;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getQueryLog(): array
+    {
+        return $this->queryLogs;
+    }
+
+    /**
+     * @return \Elasticsearch\Client
+     */
+    public function search()
+    {
+        return $this->elastisearch;
+    }
+
+    /**
+     * @param array $params
+     * @param string $method
+     * @return mixed
+     */
+    protected function runQuery(array $params, string $method = 'search')
+    {
+//        $params = array_merge([
+//            'index' => $this->index,
+//            'type' => $this->type,
+//        ], $params);
+//dd($params);
+        if ($this->enableQueryLog) {
+            $this->queryLogs[] = $params;
+        }
+
+        return call_user_func([$this->elastisearch, $method], $params);
+    }
+
+    /**
+     * @param array $results
+     * @return Collection
+     */
+    protected function metaData(array $results): Collection
+    {
+        return collect($results['hits']['hits'])->map(function ($hit) {
+            return $this->sourceToObject($hit);
+        });
+    }
+
+    /**
+     * @param array $result
+     * @return object
+     */
+    protected function sourceToObject(array $result): stdClass
+    {
+        return (object)array_merge($result['_source'], ['_id' => $result['_id']]);
+    }
+
+    /**
+     * @param $query
+     * @param string $boolean
+     * @return Builder
+     */
+    protected function addNestedWhereQuery($query, $boolean = 'and'): self
     {
         if (count($query->wheres)) {
             $type = 'Nested';
-
             $this->wheres[] = compact('type', 'query', 'boolean');
         }
 
         return $this;
     }
-
-    public function newQuery()
-    {
-        return new static();
-    }
-
-
-
-
-
-    public function get()
-    {
-        $this->grammar->compileSelect($this);
-
-        exit();
-
-        $a = $this->resolveWhere($this);
-//        $a = $this->resolve($a);
-//        dd($a);
-
-        echo json_encode($a);
-        exit();
-//dd
-//;
-        dd($this->result);
-//$a = $this->resolveBool($a);
-
-        echo json_encode($a);
-        exit();
-    }
-
-
-    protected function resolveBool(array $bool, $newBool = [])
-    {
-        $isOr = collect($bool)->search(function ($wheres) {
-            return !collect($wheres)->where('boolean', 'or')->isEmpty();
-        });
-
-        foreach ($bool as $wheres) {
-            $must = [];
-
-            foreach ($wheres as $where) {
-                $must[] = [$where['leaf'] => [$where['column'] => $where['value']]];
-            }
-
-            $newBool[]['bool']['must'] = $must;
-
-        }
-
-        if ($isOr === false) {
-            return $newBool;
-        } else {
-            return ['should' => $newBool];
-        }
-
-    }
-
-
-//    protected function resolveBool(array $bool,$newBool = [])
-//    {
-//        foreach ($bool as $item) {
-//
-//            if (isset($item['bool'])) {
-//                $newBool = $this->resolveBool($item['bool'],$newBool);
-//            }
-//
-//            if (isset($item['should'])) {
-//                $newBool['should'] = $item['should'];
-//            }
-//
-//            if (isset($item['must'])) {
-//                $newBool['should'] = array_merge([['bool'=>['must'=>$item['must']]]],$newBool['should']);
-//                //$newBool['should'] = array_merge($item['must'],$newBool['should']);
-//            }
-//        }
-//
-//        return $newBool;
-//    }
-
-
 }
