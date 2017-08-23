@@ -61,8 +61,9 @@ class Grammar
         $body = $this->compileComponents($builder);
         $index = array_pull($body, 'index');
         $type = array_pull($body, 'type');
+        $scroll = array_pull($body, 'scroll');
         $params = ['body' => $body, 'index' => $index, 'type' => $type];
-        if ((bool)$scroll = array_pull($body, 'scroll')) {
+        if ($scroll) {
             $params['scroll'] = $scroll;
         }
         return $params;

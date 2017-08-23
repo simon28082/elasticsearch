@@ -537,6 +537,15 @@ class Builder
     }
 
     /**
+     * @return int
+     */
+    public function count(): int
+    {
+        $result = $this->runQuery($this->grammar->compileSelect($this),'count');
+        return $result['count'];
+    }
+
+    /**
      * @return Grammar|null
      */
     public function getGrammar()
@@ -617,11 +626,6 @@ class Builder
      */
     protected function runQuery(array $params, string $method = 'search')
     {
-//        $params = array_merge([
-//            'index' => $this->index,
-//            'type' => $this->type,
-//        ], $params);
-//dd($params);
         if ($this->enableQueryLog) {
             $this->queryLogs[] = $params;
         }

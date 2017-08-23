@@ -14,11 +14,6 @@ use Illuminate\Support\ServiceProvider;
 class LaravelServiceProvider extends ServiceProvider
 {
     /**
-     * @var bool
-     */
-    protected $defer = true;
-
-    /**
      * @var string
      */
     protected $packagePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
@@ -38,6 +33,12 @@ class LaravelServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        //merge config
+        $configFile = $this->packagePath . 'config/search.php';
+        if (file_exists($configFile)) {
+            $this->mergeConfigFrom($configFile, 'search');
+        }
+
         $this->app->bind(Builder::class, function ($app) {
             return new Builder(
                 $this->app->make('config')->get('search'),
@@ -46,15 +47,5 @@ class LaravelServiceProvider extends ServiceProvider
                     ->setHosts($this->app->make('config')->get('search.hosts'))
                     ->build());
         });
-    }
-
-    /**
-     * @return array
-     */
-    public function provides(): array
-    {
-        return [
-            Builder::class
-        ];
     }
 }
