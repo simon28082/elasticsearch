@@ -34,11 +34,16 @@ class LaravelServiceProvider extends ServiceProvider
     public function register()
     {
         //merge config
-        $configFile = $this->packagePath . 'config/search.php';
-        if (file_exists($configFile)) {
-            $this->mergeConfigFrom($configFile, 'search');
-        }
+        $this->mergeConfig();
 
+        $this->bindBuilder();
+    }
+
+    /**
+     * @return void
+     */
+    protected function bindBuilder()
+    {
         $this->app->bind(Builder::class, function ($app) {
             return new Builder(
                 $this->app->make('config')->get('search'),
@@ -47,5 +52,16 @@ class LaravelServiceProvider extends ServiceProvider
                     ->setHosts($this->app->make('config')->get('search.hosts'))
                     ->build());
         });
+    }
+
+    /**
+     * @return void
+     */
+    protected function  mergeConfig()
+    {
+        $configFile = $this->packagePath . 'config/search.php';
+        if (file_exists($configFile)) {
+            $this->mergeConfigFrom($configFile, 'search');
+        }
     }
 }

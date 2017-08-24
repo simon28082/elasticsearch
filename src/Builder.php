@@ -384,6 +384,18 @@ class Builder
     }
 
     /**
+     * @return stdClass|null
+     */
+    public function first()
+    {
+        $this->limit = 1;
+
+        $results = $this->runQuery($this->grammar->compileSelect($this));
+
+        return $this->metaData($results)->first();
+    }
+
+    /**
      * @return Collection
      */
     public function get(): Collection
