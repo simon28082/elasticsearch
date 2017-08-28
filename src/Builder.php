@@ -447,15 +447,30 @@ class Builder
      */
     public function byId($id)
     {
-        $query = $this->newQuery();
+        //$query = $this->newQuery();
 
         $result = $this->runQuery(
-            $query->whereTerm('_id', $id)->getGrammar()->compileSelect($query)
+            $this->whereTerm('_id', $id)->getGrammar()->compileSelect($this)
         );
 
         return isset($result['hits']['hits'][0]) ?
             $this->sourceToObject($result['hits']['hits'][0]) :
             null;
+    }
+
+    /**
+     * @param $id
+     * @return stdClass
+     */
+    public function byIdOrFail($id): stdClass
+    {
+        $result = $this->byId($id);
+
+        if (empty($result)) {
+            throw new RuntimeException('Resource not found');
+        }
+
+        return $result;
     }
 
     /**
