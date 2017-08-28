@@ -428,11 +428,13 @@ class Builder
             return (object)array_merge($hit['_source'], ['_id' => $hit['_id']]);
         });
 
+        $maxPage = intval(ceil($results['hits']['total'] / $perPage));
         return collect([
             'total' => $results['hits']['total'],
             'per_page' => $page <= 1 ? null : $page - 1,
             'current_page' => $page,
-            'last_page' => intval(ceil($results['hits']['total'] / $perPage)),
+            'next_page' => $page < $maxPage ? $page + 1 : $maxPage,
+            'last_page' => $maxPage,
             'from' => $from,
             'to' => $from + $perPage,
             'data' => $data
@@ -553,7 +555,7 @@ class Builder
      */
     public function count(): int
     {
-        $result = $this->runQuery($this->grammar->compileSelect($this),'count');
+        $result = $this->runQuery($this->grammar->compileSelect($this), 'count');
         return $result['count'];
     }
 
