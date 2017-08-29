@@ -431,10 +431,11 @@ class Builder
         $maxPage = intval(ceil($results['hits']['total'] / $perPage));
         return collect([
             'total' => $results['hits']['total'],
-            'per_page' => $page <= 1 ? null : $page - 1,
+            'per_page' => $perPage,
             'current_page' => $page,
             'next_page' => $page < $maxPage ? $page + 1 : $maxPage,
-            'last_page' => $maxPage,
+            //'last_page' => $maxPage,
+            'total_pages' => $maxPage,
             'from' => $from,
             'to' => $from + $perPage,
             'data' => $data
