@@ -152,7 +152,7 @@ class Grammar
         $orders = [];
 
         foreach ($builder->orders as $field => $orderItem) {
-            $orders[] = [$field => is_array($orderItem) ? $orderItem : ['sort' => $orderItem]];
+            $orders[$field] = is_array($orderItem) ? $orderItem : ['order' => $orderItem];
         }
 
         return $orders;
