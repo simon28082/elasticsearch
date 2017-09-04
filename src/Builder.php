@@ -319,8 +319,12 @@ class Builder
             return $this->whereNested($column, $boolean);
         }
 
-        if (func_num_args() == 2) {
+        if (func_num_args() === 2) {
             list($value, $operator) = [$operator, '='];
+        }
+
+        if (is_array($operator)) {
+            list($value, $operator) = [$operator, null];
         }
 
         if ($operator !== '=') {
