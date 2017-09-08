@@ -182,7 +182,9 @@ class Grammar
                 }
             }
 
-            $bool['bool'][$operation][] = count($must) === 1 ? array_shift($must) : ['bool' => ['must' => $must]];
+            if (!empty($must)) {
+                $bool['bool'][$operation][] = count($must) === 1 ? array_shift($must) : ['bool' => ['must' => $must]];
+            }
         }
 
         return $bool;
