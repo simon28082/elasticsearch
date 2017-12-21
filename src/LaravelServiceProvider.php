@@ -2,6 +2,7 @@
 
 namespace CrCms\ElasticSearch;
 
+use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Illuminate\Support\ServiceProvider;
 
@@ -48,16 +49,36 @@ class LaravelServiceProvider extends ServiceProvider
             return new Builder(
                 $this->app->make('config')->get('search'),
                 new Grammar(),
-                ClientBuilder::create()
-                    ->setHosts($this->app->make('config')->get('search.hosts'))
-                    ->build());
+                $this->clientBuilder()
+            );
         });
+    }
+
+    /**
+     * @return Client
+     */
+    protected function clientBuilder(): Client
+    {
+        $clientBuilder = ClientBuilder::create();
+
+        $clientBuilder
+            ->setConnectionPool($this->app->make('config')->get('search.connection_pool'))
+            ->setSelector($this->app->make('config')->get('search.selector'))
+            ->setHosts($this->app->make('config')->get('search.hosts'));
+
+        if ($this->app->make('config')->get('search.open_log')) {
+            $clientBuilder->setLogger(
+                ClientBuilder::defaultLogger($this->app->make('config')->get('search.log_path'))
+            );
+        }
+
+        return $clientBuilder->build();
     }
 
     /**
      * @return void
      */
-    protected function  mergeConfig()
+    protected function mergeConfig()
     {
         $configFile = $this->packagePath . 'config/search.php';
         if (file_exists($configFile)) {
