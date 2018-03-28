@@ -33,17 +33,7 @@ php artisan vendor:publish --provider="CrCms\ElasticSearch\LaravelServiceProvide
 
 
 
-Quickstart
-----
-
-
-### Index a document
-
-In elasticsearch-php, almost everything is configured by associative arrays.  The REST endpoint, document and optional parameters - everything is an associative array.
-
-To index a document, we need to specify four pieces of information: index, type, id and a document body. This is done by
-constructing an associative array of key:value pairs.  The request body is itself an associative array with key:value pairs
-corresponding to the data in your document:
+## Quickstart
 
 ### Create
 
