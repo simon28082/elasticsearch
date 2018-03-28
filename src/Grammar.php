@@ -86,6 +86,18 @@ class Grammar
     /**
      * @param Builder $builder
      * @param $id
+     * @return array
+     */
+    public function compileDelete(Builder $builder, $id): array
+    {
+        return array_merge([
+            'id' => $id,
+        ], $this->compileComponents($builder));
+    }
+
+    /**
+     * @param Builder $builder
+     * @param $id
      * @param array $data
      * @return array
      */

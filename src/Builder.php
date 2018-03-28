@@ -257,10 +257,10 @@ class Builder
      */
     public function whereIn($field, array $value)
     {
-        return $this->where(function(Builder $query) use ($field,$value){
-            array_map(function($item) use ($query,$field){
-                $query->orWhereTerm($field,$item);
-            },$value);
+        return $this->where(function (Builder $query) use ($field, $value) {
+            array_map(function ($item) use ($query, $field) {
+                $query->orWhereTerm($field, $item);
+            }, $value);
         });
     }
 
@@ -271,10 +271,10 @@ class Builder
      */
     public function orWhereIn($field, array $value)
     {
-        return $this->orWhere(function(Builder $query) use ($field,$value){
-            array_map(function($item) use ($query,$field){
-                $query->orWhereTerm($field,$item);
-            },$value);
+        return $this->orWhere(function (Builder $query) use ($field, $value) {
+            array_map(function ($item) use ($query, $field) {
+                $query->orWhereTerm($field, $item);
+            }, $value);
         });
     }
 
@@ -557,7 +557,7 @@ class Builder
             'create'
         );
 
-        if (!isset($result['created']) || $result['created'] !== true) {
+        if (!isset($result['result']) || $result['result'] !== 'created') {
             throw new RunTimeException('Create params: ' . json_encode(last($this->queryLogs)));
         }
 
@@ -574,7 +574,7 @@ class Builder
     {
         $result = $this->runQuery($this->grammar->compileUpdate($this, $id, $data), 'update');
 
-        if (!isset($result['_version']) || $result['_version'] < 2) {
+        if (!isset($result['result']) || $result['result'] !== 'updated') {
             throw new RunTimeException('Update error params: ' . json_encode(last($this->queryLogs)));
         }
 
@@ -587,11 +587,9 @@ class Builder
      */
     public function delete($id)
     {
-        $result = $this->runQuery([
-            'id' => $id,
-        ], 'delete');
+        $result = $this->runQuery($this->grammar->compileDelete($this, $id), 'delete');
 
-        if (empty($result)) {
+        if (!isset($result['result']) || $result['result'] !== 'deleted') {
             throw new RunTimeException('Delete error params:' . json_encode(last($this->queryLogs)));
         }
 

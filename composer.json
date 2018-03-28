@@ -13,7 +13,7 @@
     ],
     "require": {
         "php":">=7.0",
-        "elasticsearch/elasticsearch":"~5.0"
+        "elasticsearch/elasticsearch": "~6.0"
     },
 	"autoload": {
         "files": [
@@ -21,5 +21,14 @@
         "psr-4": {
             "CrCms\\ElasticSearch\\": "src/"
         }
+    },
+    "extra": {
+      "laravel": {
+        "providers": [
+          "CrCms\\ElasticSearch\\LaravelServiceProvider"
+        ],
+        "aliases": {
+        }
+      }
     }
 }
