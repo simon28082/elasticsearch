@@ -175,6 +175,15 @@ class Builder
     }
 
     /**
+     * @param int $value
+     * @return Builder
+     */
+    public function skip(int $value): self
+    {
+        return $this->offset($value);
+    }
+
+    /**
      * @param string $field
      * @param $sort
      * @return Builder
@@ -221,7 +230,6 @@ class Builder
 
         return $this;
     }
-
 
     /**
      * @param $field
@@ -449,7 +457,7 @@ class Builder
      * @param int $perPage
      * @return Collection
      */
-    public function paginate(int $page, int $perPage = 15)
+    public function paginate(int $page, int $perPage = 15): Collection
     {
         $from = (($page * $perPage) - $perPage);
 
