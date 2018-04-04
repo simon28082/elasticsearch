@@ -3,7 +3,6 @@
 namespace CrCms\ElasticSearch;
 
 use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
 use Illuminate\Support\Collection;
 use RuntimeException;
 use stdClass;

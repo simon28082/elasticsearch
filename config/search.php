@@ -10,7 +10,7 @@ return [
     |
     */
 
-    'hosts'=>[],
+    'hosts' => [],
 
     /*
     |--------------------------------------------------------------------------
@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'selector'=> Elasticsearch\ConnectionPool\Selectors\StickyRoundRobinSelector::class,
+    'selector' => Elasticsearch\ConnectionPool\Selectors\StickyRoundRobinSelector::class,
 
     /*
     |--------------------------------------------------------------------------
