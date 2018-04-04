@@ -257,8 +257,10 @@ dump($build->getLastQueryLog());
 ```
 
 ### Elastisearch object
-getElasticSearch() // or search()
 
+```php
+getElasticSearch() // or search()
+```
 
 
 
