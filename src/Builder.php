@@ -558,7 +558,7 @@ class Builder
         );
 
         if (!isset($result['result']) || $result['result'] !== 'created') {
-            throw new RunTimeException('Create params: ' . json_encode(last($this->queryLogs)));
+            throw new RunTimeException('Create params: ' . json_encode($this->getLastQueryLog()));
         }
 
         $data['_id'] = $id;
@@ -575,7 +575,7 @@ class Builder
         $result = $this->runQuery($this->grammar->compileUpdate($this, $id, $data), 'update');
 
         if (!isset($result['result']) || $result['result'] !== 'updated') {
-            throw new RunTimeException('Update error params: ' . json_encode(last($this->queryLogs)));
+            throw new RunTimeException('Update error params: ' . json_encode($this->getLastQueryLog()));
         }
 
         return true;
@@ -590,7 +590,7 @@ class Builder
         $result = $this->runQuery($this->grammar->compileDelete($this, $id), 'delete');
 
         if (!isset($result['result']) || $result['result'] !== 'deleted') {
-            throw new RunTimeException('Delete error params:' . json_encode(last($this->queryLogs)));
+            throw new RunTimeException('Delete error params:' . json_encode($this->getLastQueryLog()));
         }
 
         return true;
@@ -669,6 +669,14 @@ class Builder
     public function getQueryLog(): array
     {
         return $this->queryLogs;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLastQueryLog(): array
+    {
+        return empty($this->queryLogs) ? '' : end($this->queryLogs);
     }
 
     /**
