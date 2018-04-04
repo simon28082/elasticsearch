@@ -143,7 +143,6 @@ class Builder
         return $this;
     }
 
-
     /**
      * @param int $value
      * @return Builder
@@ -153,6 +152,15 @@ class Builder
         $this->limit = $value;
 
         return $this;
+    }
+
+    /**
+     * @param int $value
+     * @return Builder
+     */
+    public function take(int $value): self
+    {
+        return $this->limit($value);
     }
 
     /**
