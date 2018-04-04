@@ -256,7 +256,7 @@ dump($build->getQueryLog());
 dump($build->getLastQueryLog());
 ```
 
-### elastisearch object
+### Elastisearch object
 getElasticSearch() // or search()
 
 
