@@ -1,5 +1,9 @@
 # Crcms Elasticsearch
 
+
+[![Latest Stable Version](https://poser.pugx.org/crcms/elasticsearch/v/stable)](https://packagist.org/packages/crcms/elasticsearch)
+[![License](https://poser.pugx.org/crcms/elasticsearch/license)](https://packagist.org/packages/crcms/elasticsearch)
+
 ## Version Matrix
 
 | Elasticsearch Version | crcms/elasticsearch Branch |
