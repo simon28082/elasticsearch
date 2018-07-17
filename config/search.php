@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     /*
@@ -52,7 +53,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Elasticsearch Connection Pool
+    | Elasticsearch Selector
     |--------------------------------------------------------------------------
     |
     | Setting the Connection Selector
@@ -67,7 +68,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Elasticsearch log path
+    | Open elasticsearch log
     |--------------------------------------------------------------------------
     |
     | Set whether the log to open the record
@@ -80,12 +81,6 @@ return [
     |--------------------------------------------------------------------------
     | Elasticsearch log path
     |--------------------------------------------------------------------------
-    |
-    | Setting the Connection Selector
-    |
-    | Elasticsearch\ConnectionPool\Selectors\StickyRoundRobinSelector::class
-    | Elasticsearch\ConnectionPool\Selectors\RoundRobinSelector::class
-    | Elasticsearch\ConnectionPool\Selectors\RandomSelector::class
     |
     */
 
