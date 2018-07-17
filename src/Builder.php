@@ -200,7 +200,7 @@ class Builder
      * @param $type
      * @return Builder
      */
-    public function aggBy($field, $type): self
+    public function aggBy($field, $type = null): self
     {
         is_array($field) ?
             $this->aggs[] = $field :
