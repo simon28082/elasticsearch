@@ -3,6 +3,7 @@
 
 [![Latest Stable Version](https://poser.pugx.org/crcms/elasticsearch/v/stable)](https://packagist.org/packages/crcms/elasticsearch)
 [![License](https://poser.pugx.org/crcms/elasticsearch/license)](https://packagist.org/packages/crcms/elasticsearch)
+[![StyleCI](https://github.styleci.io/repos/100927763/shield?branch=master)](https://github.styleci.io/repos/100927763)
 
 ## Version Matrix
 
