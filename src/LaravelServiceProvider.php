@@ -7,9 +7,8 @@ use Elasticsearch\ClientBuilder;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Class LaravelServiceProvider
+ * Class LaravelServiceProvider.
  *
- * @package CrCms\ElasticSearch
  * @author simon
  */
 class LaravelServiceProvider extends ServiceProvider
@@ -17,7 +16,7 @@ class LaravelServiceProvider extends ServiceProvider
     /**
      * @var string
      */
-    protected $packagePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
+    protected $packagePath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR;
 
     /**
      * @return void
@@ -25,7 +24,7 @@ class LaravelServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            $this->packagePath . 'config' => config_path(),
+            $this->packagePath.'config' => config_path(),
         ]);
     }
 
@@ -80,7 +79,7 @@ class LaravelServiceProvider extends ServiceProvider
      */
     protected function mergeConfig()
     {
-        $configFile = $this->packagePath . 'config/search.php';
+        $configFile = $this->packagePath.'config/search.php';
         if (file_exists($configFile)) {
             $this->mergeConfigFrom($configFile, 'search');
         }

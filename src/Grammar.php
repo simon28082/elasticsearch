@@ -3,9 +3,8 @@
 namespace CrCms\ElasticSearch;
 
 /**
- * Class Grammar
+ * Class Grammar.
  *
- * @package CrCms\ElasticSearch
  * @author simon
  */
 class Grammar
@@ -15,18 +14,19 @@ class Grammar
      */
     protected $selectComponents = [
         '_source' => 'columns',
-        'query' => 'wheres',
+        'query'   => 'wheres',
         'aggs',
-        'sort' => 'orders',
-        'size' => 'limit',
-        'from' => 'offset',
-        'index' => 'index',
-        'type' => 'type',
+        'sort'   => 'orders',
+        'size'   => 'limit',
+        'from'   => 'offset',
+        'index'  => 'index',
+        'type'   => 'type',
         'scroll' => 'scroll',
     ];
 
     /**
      * @param Builder $builder
+     *
      * @return int
      */
     public function compileOffset(Builder $builder): int
@@ -36,6 +36,7 @@ class Grammar
 
     /**
      * @param Builder $builder
+     *
      * @return int
      */
     public function compileLimit(Builder $builder): int
@@ -45,6 +46,7 @@ class Grammar
 
     /**
      * @param Builder $builder
+     *
      * @return string
      */
     public function compileScroll(Builder $builder): string
@@ -54,6 +56,7 @@ class Grammar
 
     /**
      * @param Builder $builder
+     *
      * @return array
      */
     public function compileSelect(Builder $builder)
@@ -66,6 +69,7 @@ class Grammar
         if ($scroll) {
             $params['scroll'] = $scroll;
         }
+
         return $params;
     }
 
@@ -73,19 +77,21 @@ class Grammar
      * @param Builder $builder
      * @param $id
      * @param array $data
+     *
      * @return array
      */
     public function compileCreate(Builder $builder, $id, array $data): array
     {
         return array_merge([
-            'id' => $id,
-            'body' => $data
+            'id'   => $id,
+            'body' => $data,
         ], $this->compileComponents($builder));
     }
 
     /**
      * @param Builder $builder
      * @param $id
+     *
      * @return array
      */
     public function compileDelete(Builder $builder, $id): array
@@ -99,18 +105,20 @@ class Grammar
      * @param Builder $builder
      * @param $id
      * @param array $data
+     *
      * @return array
      */
     public function compileUpdate(Builder $builder, $id, array $data): array
     {
         return array_merge([
-            'id' => $id,
-            'body' => ['doc' => $data]
+            'id'   => $id,
+            'body' => ['doc' => $data],
         ], $this->compileComponents($builder));
     }
 
     /**
      * @param Builder $builder
+     *
      * @return array
      */
     public function compileAggs(Builder $builder): array
@@ -121,7 +129,7 @@ class Grammar
             if (is_array($aggItem)) {
                 $aggs[] = $aggItem;
             } else {
-                $aggs[$field . '_' . $aggItem] = [$aggItem => ['field' => $field]];
+                $aggs[$field.'_'.$aggItem] = [$aggItem => ['field' => $field]];
             }
         }
 
@@ -130,6 +138,7 @@ class Grammar
 
     /**
      * @param Builder $builder
+     *
      * @return array
      */
     public function compileColumns(Builder $builder): array
@@ -139,6 +148,7 @@ class Grammar
 
     /**
      * @param Builder $builder
+     *
      * @return string
      */
     public function compileIndex(Builder $builder): string
@@ -148,6 +158,7 @@ class Grammar
 
     /**
      * @param Builder $builder
+     *
      * @return string
      */
     public function compileType(Builder $builder): string
@@ -157,6 +168,7 @@ class Grammar
 
     /**
      * @param Builder $builder
+     *
      * @return array
      */
     public function compileOrders(Builder $builder): array
@@ -172,6 +184,7 @@ class Grammar
 
     /**
      * @param Builder $builder
+     *
      * @return array
      */
     protected function compileWheres(Builder $builder): array
@@ -203,10 +216,11 @@ class Grammar
     }
 
     /**
-     * @param string $leaf
-     * @param string $column
+     * @param string      $leaf
+     * @param string      $column
      * @param string|null $operator
      * @param $value
+     *
      * @return array
      */
     protected function whereLeaf(string $leaf, string $column, string $operator = null, $value): array
@@ -215,19 +229,20 @@ class Grammar
             return [$leaf => [$column => $value]];
         } elseif ($leaf === 'range') {
             return [$leaf => [
-                $column => is_array($value) ? $value : [$operator => $value]
+                $column => is_array($value) ? $value : [$operator => $value],
             ]];
         }
     }
 
     /**
      * @param array $wheres
+     *
      * @return array
      */
     protected function wherePriorityGroup(array $wheres): array
     {
         //get "or" index from array
-        $orIndex = (array)array_keys(array_map(function ($where) {
+        $orIndex = (array) array_keys(array_map(function ($where) {
             return $where['boolean'];
         }, $wheres), 'or');
 
@@ -246,6 +261,7 @@ class Grammar
 
     /**
      * @param Builder $query
+     *
      * @return array
      */
     protected function compileComponents(Builder $query): array
@@ -254,7 +270,7 @@ class Grammar
 
         foreach ($this->selectComponents as $key => $component) {
             if (!empty($query->$component)) {
-                $method = 'compile' . ucfirst($component);
+                $method = 'compile'.ucfirst($component);
 
                 $body[is_numeric($key) ? $component : $key] = $this->$method($query, $query->$component);
             }
