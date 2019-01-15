@@ -8,9 +8,8 @@ use RuntimeException;
 use stdClass;
 
 /**
- * Class Builder
+ * Class Builder.
  *
- * @package CrCms\ElasticSearch
  * @author simon
  */
 class Builder
@@ -64,10 +63,10 @@ class Builder
      * @var array
      */
     public $operators = [
-        '=' => 'eq',
-        '>' => 'gt',
+        '='  => 'eq',
+        '>'  => 'gt',
         '>=' => 'gte',
-        '<' => 'lt',
+        '<'  => 'lt',
         '<=' => 'lte',
     ];
 
@@ -123,6 +122,7 @@ class Builder
 
     /**
      * @param $index
+     *
      * @return Builder
      */
     public function index($index): self
@@ -134,6 +134,7 @@ class Builder
 
     /**
      * @param $type
+     *
      * @return Builder
      */
     public function type($type): self
@@ -145,6 +146,7 @@ class Builder
 
     /**
      * @param int $value
+     *
      * @return Builder
      */
     public function limit(int $value): self
@@ -156,6 +158,7 @@ class Builder
 
     /**
      * @param int $value
+     *
      * @return Builder
      */
     public function take(int $value): self
@@ -165,6 +168,7 @@ class Builder
 
     /**
      * @param int $value
+     *
      * @return Builder
      */
     public function offset(int $value): self
@@ -176,6 +180,7 @@ class Builder
 
     /**
      * @param int $value
+     *
      * @return Builder
      */
     public function skip(int $value): self
@@ -186,6 +191,7 @@ class Builder
     /**
      * @param string $field
      * @param $sort
+     *
      * @return Builder
      */
     public function orderBy(string $field, $sort): self
@@ -198,6 +204,7 @@ class Builder
     /**
      * @param $field
      * @param $type
+     *
      * @return Builder
      */
     public function aggBy($field, $type = null): self
@@ -211,6 +218,7 @@ class Builder
 
     /**
      * @param string $scroll
+     *
      * @return Builder
      */
     public function scroll(string $scroll): self
@@ -222,6 +230,7 @@ class Builder
 
     /**
      * @param $columns
+     *
      * @return Builder
      */
     public function select($columns): self
@@ -235,6 +244,7 @@ class Builder
      * @param $field
      * @param $value
      * @param string $boolean
+     *
      * @return Builder
      */
     public function whereMatch($field, $value, $boolean = 'and'): self
@@ -246,6 +256,7 @@ class Builder
      * @param $field
      * @param $value
      * @param string $boolean
+     *
      * @return Builder
      */
     public function orWhereMatch($field, $value, $boolean = 'and'): self
@@ -253,11 +264,11 @@ class Builder
         return $this->whereMatch($field, $value, $boolean);
     }
 
-
     /**
      * @param $field
      * @param $value
      * @param string $boolean
+     *
      * @return Builder
      */
     public function whereTerm($field, $value, $boolean = 'and'): self
@@ -268,6 +279,7 @@ class Builder
     /**
      * @param $field
      * @param array $value
+     *
      * @return Builder
      */
     public function whereIn($field, array $value)
@@ -282,6 +294,7 @@ class Builder
     /**
      * @param $field
      * @param array $value
+     *
      * @return Builder
      */
     public function orWhereIn($field, array $value)
@@ -297,6 +310,7 @@ class Builder
      * @param $field
      * @param $value
      * @param string $boolean
+     *
      * @return Builder
      */
     public function orWhereTerm($field, $value, $boolean = 'or'): self
@@ -306,9 +320,10 @@ class Builder
 
     /**
      * @param $field
-     * @param null $operator
-     * @param null $value
+     * @param null   $operator
+     * @param null   $value
      * @param string $boolean
+     *
      * @return Builder
      */
     public function whereRange($field, $operator = null, $value = null, $boolean = 'and'): self
@@ -320,6 +335,7 @@ class Builder
      * @param $field
      * @param null $operator
      * @param null $value
+     *
      * @return Builder
      */
     public function orWhereRange($field, $operator = null, $value = null): self
@@ -329,8 +345,9 @@ class Builder
 
     /**
      * @param $field
-     * @param array $values
+     * @param array  $values
      * @param string $boolean
+     *
      * @return Builder
      */
     public function whereBetween($field, array $values, $boolean = 'and'): self
@@ -341,6 +358,7 @@ class Builder
     /**
      * @param $field
      * @param array $values
+     *
      * @return Builder
      */
     public function orWhereBetween($field, array $values): self
@@ -350,10 +368,11 @@ class Builder
 
     /**
      * @param $column
-     * @param null $operator
-     * @param null $value
+     * @param null   $operator
+     * @param null   $value
      * @param string $leaf
      * @param string $boolean
+     *
      * @return Builder
      */
     public function where($column, $operator = null, $value = null, $leaf = 'term', $boolean = 'and'): self
@@ -394,9 +413,10 @@ class Builder
 
     /**
      * @param $field
-     * @param null $operator
-     * @param null $value
+     * @param null   $operator
+     * @param null   $value
      * @param string $leaf
+     *
      * @return Builder
      */
     public function orWhere($field, $operator = null, $value = null, $leaf = 'term'): self
@@ -411,6 +431,7 @@ class Builder
     /**
      * @param \Closure $callback
      * @param $boolean
+     *
      * @return Builder
      */
     public function whereNested(\Closure $callback, $boolean): self
@@ -455,6 +476,7 @@ class Builder
     /**
      * @param int $page
      * @param int $perPage
+     *
      * @return Collection
      */
     public function paginate(int $page, int $perPage = 15): Collection
@@ -472,25 +494,27 @@ class Builder
         $results = $this->runQuery($this->grammar->compileSelect($this));
 
         $data = collect($results['hits']['hits'])->map(function ($hit) {
-            return (object)array_merge($hit['_source'], ['_id' => $hit['_id']]);
+            return (object) array_merge($hit['_source'], ['_id' => $hit['_id']]);
         });
 
         $maxPage = intval(ceil($results['hits']['total'] / $perPage));
+
         return collect([
-            'total' => $results['hits']['total'],
-            'per_page' => $perPage,
+            'total'        => $results['hits']['total'],
+            'per_page'     => $perPage,
             'current_page' => $page,
-            'next_page' => $page < $maxPage ? $page + 1 : $maxPage,
+            'next_page'    => $page < $maxPage ? $page + 1 : $maxPage,
             //'last_page' => $maxPage,
             'total_pages' => $maxPage,
-            'from' => $from,
-            'to' => $from + $perPage,
-            'data' => $data
+            'from'        => $from,
+            'to'          => $from + $perPage,
+            'data'        => $data,
         ]);
     }
 
     /**
      * @param $id
+     *
      * @return null|object
      */
     public function byId($id)
@@ -508,6 +532,7 @@ class Builder
 
     /**
      * @param $id
+     *
      * @return stdClass
      */
     public function byIdOrFail($id): stdClass
@@ -523,8 +548,9 @@ class Builder
 
     /**
      * @param callable $callback
-     * @param int $limit
-     * @param string $scroll
+     * @param int      $limit
+     * @param string   $scroll
+     *
      * @return bool
      */
     public function chunk(callable $callback, $limit = 2000, $scroll = '10m')
@@ -540,7 +566,7 @@ class Builder
         $results = $this->runQuery($this->grammar->compileSelect($this), 'search');
 
         if ($results['hits']['total'] === 0) {
-            return null;
+            return;
         }
 
         $total = $this->limit;
@@ -558,9 +584,10 @@ class Builder
     }
 
     /**
-     * @param array $data
-     * @param null $id
+     * @param array  $data
+     * @param null   $id
      * @param string $key
+     *
      * @return stdClass
      */
     public function create(array $data, $id = null, $key = 'id'): stdClass
@@ -573,16 +600,18 @@ class Builder
         );
 
         if (!isset($result['result']) || $result['result'] !== 'created') {
-            throw new RunTimeException('Create params: ' . json_encode($this->getLastQueryLog()));
+            throw new RunTimeException('Create params: '.json_encode($this->getLastQueryLog()));
         }
 
         $data['_id'] = $id;
-        return (object)$data;
+
+        return (object) $data;
     }
 
     /**
      * @param $id
      * @param array $data
+     *
      * @return bool
      */
     public function update($id, array $data): bool
@@ -590,7 +619,7 @@ class Builder
         $result = $this->runQuery($this->grammar->compileUpdate($this, $id, $data), 'update');
 
         if (!isset($result['result']) || $result['result'] !== 'updated') {
-            throw new RunTimeException('Update error params: ' . json_encode($this->getLastQueryLog()));
+            throw new RunTimeException('Update error params: '.json_encode($this->getLastQueryLog()));
         }
 
         return true;
@@ -598,6 +627,7 @@ class Builder
 
     /**
      * @param $id
+     *
      * @return bool
      */
     public function delete($id)
@@ -605,7 +635,7 @@ class Builder
         $result = $this->runQuery($this->grammar->compileDelete($this, $id), 'delete');
 
         if (!isset($result['result']) || $result['result'] !== 'deleted') {
-            throw new RunTimeException('Delete error params:' . json_encode($this->getLastQueryLog()));
+            throw new RunTimeException('Delete error params:'.json_encode($this->getLastQueryLog()));
         }
 
         return true;
@@ -617,6 +647,7 @@ class Builder
     public function count(): int
     {
         $result = $this->runQuery($this->grammar->compileSelect($this), 'count');
+
         return $result['count'];
     }
 
@@ -630,6 +661,7 @@ class Builder
 
     /**
      * @param Grammar $grammar
+     *
      * @return $this
      */
     public function setGrammar(Grammar $grammar)
@@ -641,6 +673,7 @@ class Builder
 
     /**
      * @param Client $client
+     *
      * @return $this
      */
     public function setElasticSearch(Client $client)
@@ -703,8 +736,9 @@ class Builder
     }
 
     /**
-     * @param array $params
+     * @param array  $params
      * @param string $method
+     *
      * @return mixed
      */
     protected function runQuery(array $params, string $method = 'search')
@@ -718,6 +752,7 @@ class Builder
 
     /**
      * @param array $results
+     *
      * @return Collection
      */
     protected function metaData(array $results): Collection
@@ -729,16 +764,18 @@ class Builder
 
     /**
      * @param array $result
+     *
      * @return object
      */
     protected function sourceToObject(array $result): stdClass
     {
-        return (object)array_merge($result['_source'], ['_id' => $result['_id']]);
+        return (object) array_merge($result['_source'], ['_id' => $result['_id']]);
     }
 
     /**
      * @param $query
      * @param string $boolean
+     *
      * @return Builder
      */
     protected function addNestedWhereQuery($query, $boolean = 'and'): self
