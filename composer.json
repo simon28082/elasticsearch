@@ -1,34 +1,41 @@
 {
-    "name": "crcms/elasticsearch",
-    "description": "crcms elasticsearch module",
-	"keywords": ["elasticsearch", "crcms","laravel","php"],
-	"homepage": "https://github.com/crcms/elasticsearch",
-    "license": "MIT",
-	"authors": [
-        {
-            "email": "crcms@crcms.cn",
-			"homepage": "http://crcms.cn"
-        }
+  "name": "crcms/elasticsearch",
+  "description": "Use SQL statements to query elasticsearch",
+  "keywords": [
+    "elasticsearch",
+    "laravel",
+    "sql",
+    "orm",
+    "php"
+  ],
+  "homepage": "https://github.com/crcms/elasticsearch",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "simon",
+      "email": "crcms@crcms.cn",
+      "homepage": "http://crcms.cn"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "illuminate/support": "^5.3",
+    "elasticsearch/elasticsearch": "~6.0"
+  },
+  "autoload": {
+    "files": [
     ],
-    "require": {
-        "php": ">=7.0",
-        "illuminate/support": "^5.3",
-        "elasticsearch/elasticsearch": "~6.0"
-    },
-	"autoload": {
-        "files": [
-        ],
-        "psr-4": {
-            "CrCms\\ElasticSearch\\": "src/"
-        }
-    },
-    "extra": {
-      "laravel": {
-        "providers": [
-          "CrCms\\ElasticSearch\\LaravelServiceProvider"
-        ],
-        "aliases": {
-        }
+    "psr-4": {
+      "CrCms\\ElasticSearch\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "CrCms\\ElasticSearch\\LaravelServiceProvider"
+      ],
+      "aliases": {
       }
     }
+  }
 }
