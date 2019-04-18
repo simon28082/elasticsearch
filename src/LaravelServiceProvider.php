@@ -79,9 +79,20 @@ class LaravelServiceProvider extends ServiceProvider
      */
     protected function mergeConfig()
     {
-        $configFile = $this->packagePath.'config/search.php';
-        if (file_exists($configFile)) {
-            $this->mergeConfigFrom($configFile, 'search');
+        if ($this->isLumen()) {
+            $this->app->configure('search');
         }
+
+        $this->mergeConfigFrom($this->packagePath.'config/search.php', 'search');
+    }
+
+    /**
+     * isLumen
+     *
+     * @return bool
+     */
+    protected function isLumen(): bool
+    {
+        return $this->app instanceof \Laravel\Lumen\Application;
     }
 }
