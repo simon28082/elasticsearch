@@ -87,7 +87,7 @@ class LaravelServiceProvider extends ServiceProvider
     }
 
     /**
-     * isLumen
+     * isLumen.
      *
      * @return bool
      */
