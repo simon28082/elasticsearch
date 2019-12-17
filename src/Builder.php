@@ -259,7 +259,7 @@ class Builder
      *
      * @return Builder
      */
-    public function orWhereMatch($field, $value, $boolean = 'and'): self
+    public function orWhereMatch($field, $value, $boolean = 'or'): self
     {
         return $this->whereMatch($field, $value, $boolean);
     }
