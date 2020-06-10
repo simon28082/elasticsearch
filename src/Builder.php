@@ -405,7 +405,12 @@ class Builder
         $operator = $operator ? $this->operators[$operator] : $operator;
 
         $this->wheres[] = compact(
-            'type', 'column', 'leaf', 'value', 'boolean', 'operator'
+            'type',
+            'column',
+            'leaf',
+            'value',
+            'boolean',
+            'operator'
         );
 
         return $this;
