@@ -267,7 +267,7 @@ dump($build->getLastQueryLog());
 getElasticSearch() // or search()
 ```
 
-> If you want to expand more, you can use this method
+> If you want to expand more, you can use this method, call https://github.com/elastic/elasticsearch-php
 
 
 ## License
