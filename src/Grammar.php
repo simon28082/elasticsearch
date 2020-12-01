@@ -201,9 +201,9 @@ class Grammar
                 if ($where['type'] === 'Nested') {
                     $must[] = $this->compileWheres($where['query']);
                 } else {
-                    if($where['operator']=="ne"){
+                    if ($where['operator'] == 'ne') {
                         $mustNot[] = $this->whereLeaf($where['leaf'], $where['column'], $where['operator'], $where['value']);
-                    }else{
+                    } else {
                         $must[] = $this->whereLeaf($where['leaf'], $where['column'], $where['operator'], $where['value']);
                     }
                 }
@@ -212,12 +212,12 @@ class Grammar
             if (!empty($must)) {
                 $bool['bool'][$operation][] = count($must) === 1 ? array_shift($must) : ['bool' => ['must' => $must]];
             }
-            if (!empty($mustNot)){
-                if($operation=='should'){
+            if (!empty($mustNot)) {
+                if ($operation == 'should') {
                     foreach ($mustNot as $not) {
                         $bool['bool'][$operation][] = ['bool'=>['must_not'=>$not]];
                     }
-                }else{
+                } else {
                     $bool['bool']['must_not'] = $mustNot;
                 }
             }
@@ -236,33 +236,34 @@ class Grammar
      */
     protected function whereLeaf(string $leaf, string $column, string $operator = null, $value): array
     {
-        if(strpos($column,"@")!==false){
-            $columnArr = explode("@",$column);
-            $ret = ["nested"=>["path"=>$columnArr[0]]];
-            $ret["nested"]['query']["bool"]['must'][] = $this->whereLeaf($leaf,implode(".", $columnArr),$operator,$value);
+        if (strpos($column, '@') !== false) {
+            $columnArr = explode('@', $column);
+            $ret = ['nested'=>['path'=>$columnArr[0]]];
+            $ret['nested']['query']['bool']['must'][] = $this->whereLeaf($leaf, implode('.', $columnArr), $operator, $value);
+
             return $ret;
         }
-        if (in_array($leaf, ['term', 'match','terms','match_phrase'], true)) {
+        if (in_array($leaf, ['term', 'match', 'terms', 'match_phrase'], true)) {
             return [$leaf => [$column => $value]];
         } elseif ($leaf === 'range') {
             return [$leaf => [
                 $column => is_array($value) ? $value : [$operator => $value],
             ]];
-        }elseif ($leaf === 'multi_match'){
+        } elseif ($leaf === 'multi_match') {
             return ['multi_match' => [
-                                        'query'  => $value,
-                                        'fields' => (array)$column,
-                                        "type"   => "phrase",
-                                    ]
-                    ];
-        }elseif($leaf === "wildcard"){
+                'query'  => $value,
+                'fields' => (array) $column,
+                'type'   => 'phrase',
+            ],
+            ];
+        } elseif ($leaf === 'wildcard') {
             return ['wildcard' => [
-                                        $column => "*".$value."*",
-                                ]
-                    ];
-        }elseif($leaf === "exists"){
+                $column => '*'.$value.'*',
+            ],
+            ];
+        } elseif ($leaf === 'exists') {
             return ['exists' => [
-                "field" => $column
+                'field' => $column,
             ]];
         }
     }
