@@ -8,6 +8,9 @@ return [
     |--------------------------------------------------------------------------
     |
     | Set up one or more host connections
+    | Examples:
+    | 127.0.0.1:9200
+    | 127.0.0.1:9300
     |
     */
 
@@ -22,7 +25,7 @@ return [
     |
     */
 
-    'index' => '',
+//    'index' => '',
 
     /*
     |--------------------------------------------------------------------------
@@ -33,7 +36,7 @@ return [
     |
     */
 
-    'type' => 'basic',
+//    'type' => 'basic',
 
     /*
     |--------------------------------------------------------------------------
@@ -84,6 +87,6 @@ return [
     |
     */
 
-    'log_path' => storage_path('logs/elasticsearch.log'),
+    //'log_path' => function_exists('storage_path') ? storage_path('logs/elasticsearch.log') : 'elasticsearch.log',
 
 ];

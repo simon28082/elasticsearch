@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CrCms\ElasticSearch;
 
 use Elasticsearch\Client;
 use Illuminate\Support\Collection;
+use Ramsey\Uuid\Uuid;
 use RuntimeException;
 use stdClass;
 
@@ -25,14 +28,14 @@ class Builder
     public $columns = [];
 
     /**
-     * @var null
+     * @var int
      */
-    public $offset = null;
+    public $offset;
 
     /**
-     * @var null
+     * @var int
      */
-    public $limit = null;
+    public $limit;
 
     /**
      * @var array
@@ -47,38 +50,43 @@ class Builder
     /**
      * @var string
      */
-    public $index = '';
+    public $index;
 
     /**
      * @var string
      */
-    public $type = '';
+    public $type;
 
     /**
      * @var string
      */
-    public $scroll = '';
+    public $scroll;
 
     /**
      * @var array
      */
     public $operators = [
-        '='  => 'eq',
-        '>'  => 'gt',
+        '=' => 'eq',
+        '>' => 'gt',
         '>=' => 'gte',
-        '<'  => 'lt',
+        '<' => 'lt',
         '<=' => 'lte',
     ];
 
     /**
-     * @var Grammar|null
+     * @var Grammar
      */
-    protected $grammar = null;
+    protected $grammar;
 
     /**
-     * @var \Elasticsearch\Client|null
+     * @var Grammar
      */
-    protected $elastisearch = null;
+//    protected $originalGrammar;
+
+    /**
+     * @var Client
+     */
+    protected $elasticsearch;
 
     /**
      * @var array
@@ -96,28 +104,15 @@ class Builder
     protected $config = [];
 
     /**
-     * Builder constructor.
+     * @param array $config
+     * @param Grammar $grammar
+     * @param Client $client
      */
     public function __construct(array $config, Grammar $grammar, Client $client)
     {
         $this->config = $config;
         $this->setGrammar($grammar);
         $this->setElasticSearch($client);
-        $this->setDefault();
-    }
-
-    /**
-     * @return void
-     */
-    protected function setDefault()
-    {
-        if (!empty($this->config['index'])) {
-            $this->index = $this->config['index'];
-        }
-
-        if (!empty($this->config['type'])) {
-            $this->type = $this->config['type'];
-        }
     }
 
     /**
@@ -320,8 +315,8 @@ class Builder
 
     /**
      * @param $field
-     * @param null   $operator
-     * @param null   $value
+     * @param null $operator
+     * @param null $value
      * @param string $boolean
      *
      * @return Builder
@@ -345,7 +340,7 @@ class Builder
 
     /**
      * @param $field
-     * @param array  $values
+     * @param array $values
      * @param string $boolean
      *
      * @return Builder
@@ -368,8 +363,8 @@ class Builder
 
     /**
      * @param $column
-     * @param null   $operator
-     * @param null   $value
+     * @param null $operator
+     * @param null $value
      * @param string $leaf
      * @param string $boolean
      *
@@ -418,8 +413,8 @@ class Builder
 
     /**
      * @param $field
-     * @param null   $operator
-     * @param null   $value
+     * @param null $operator
+     * @param null $value
      * @param string $leaf
      *
      * @return Builder
@@ -435,11 +430,11 @@ class Builder
 
     /**
      * @param \Closure $callback
-     * @param $boolean
+     * @param string $boolean
      *
      * @return Builder
      */
-    public function whereNested(\Closure $callback, $boolean): self
+    public function whereNested(\Closure $callback, string $boolean): self
     {
         $query = $this->newQuery();
 
@@ -449,23 +444,24 @@ class Builder
     }
 
     /**
-     * @return static
+     *
+     * @return Builder
      */
     public function newQuery(): self
     {
-        return new static($this->config, $this->grammar, $this->elastisearch);
+//        $this->resetGrammar();
+
+        return new static($this->config, $this->grammar, $this->elasticsearch);
     }
 
     /**
-     * @return stdClass|null
+     * @return object|null
      */
-    public function first()
+    public function first(): ?object
     {
         $this->limit = 1;
 
-        $results = $this->runQuery($this->grammar->compileSelect($this));
-
-        return $this->metaData($results)->first();
+        return $this->get()->first();
     }
 
     /**
@@ -473,9 +469,16 @@ class Builder
      */
     public function get(): Collection
     {
-        $results = $this->runQuery($this->grammar->compileSelect($this));
+        return $this->metaData($this->getOriginal());
+    }
 
-        return $this->metaData($results);
+    /**
+     *
+     * @return array
+     */
+    public function getOriginal(): array
+    {
+        return $this->runQuery($this->grammar->compileSelect($this));
     }
 
     /**
@@ -499,33 +502,31 @@ class Builder
         $results = $this->runQuery($this->grammar->compileSelect($this));
 
         $data = collect($results['hits']['hits'])->map(function ($hit) {
-            return (object) array_merge($hit['_source'], ['_id' => $hit['_id']]);
+            return (object)array_merge($hit['_source'], ['_id' => $hit['_id']]);
         });
 
         $maxPage = intval(ceil($results['hits']['total'] / $perPage));
 
-        return collect([
-            'total'        => $results['hits']['total'],
-            'per_page'     => $perPage,
+        return Collection::make([
+            'total' => $results['hits']['total'],
+            'per_page' => $perPage,
             'current_page' => $page,
-            'next_page'    => $page < $maxPage ? $page + 1 : $maxPage,
+            'next_page' => $page < $maxPage ? $page + 1 : $maxPage,
             //'last_page' => $maxPage,
             'total_pages' => $maxPage,
-            'from'        => $from,
-            'to'          => $from + $perPage,
-            'data'        => $data,
+            'from' => $from,
+            'to' => $from + $perPage,
+            'data' => $data,
         ]);
     }
 
     /**
-     * @param $id
+     * @param string|int $id
      *
      * @return null|object
      */
-    public function byId($id)
+    public function byId($id): ?object
     {
-        //$query = $this->newQuery();
-
         $result = $this->runQuery(
             $this->whereTerm('_id', $id)->getGrammar()->compileSelect($this)
         );
@@ -536,16 +537,16 @@ class Builder
     }
 
     /**
-     * @param $id
+     * @param string|int $id
      *
-     * @return stdClass
+     * @return object
      */
-    public function byIdOrFail($id): stdClass
+    public function byIdOrFail($id): object
     {
         $result = $this->byId($id);
 
         if (empty($result)) {
-            throw new RuntimeException('Resource not found');
+            throw new RuntimeException('Resource not found by id:'.$id);
         }
 
         return $result;
@@ -553,8 +554,8 @@ class Builder
 
     /**
      * @param callable $callback
-     * @param int      $limit
-     * @param string   $scroll
+     * @param int $limit
+     * @param string $scroll
      *
      * @return bool
      */
@@ -589,32 +590,45 @@ class Builder
     }
 
     /**
-     * @param array  $data
-     * @param null   $id
+     * @param array $data
+     * @param string|int|null $id
      * @param string $key
      *
-     * @return stdClass
+     * @return object
      */
-    public function create(array $data, $id = null, $key = 'id'): stdClass
+    public function create(array $data, $id = null, $key = 'id'): object
     {
-        $id = $id ? $id : isset($data[$key]) ? $data[$key] : uniqid();
+        $id = $id ? $id : isset($data[$key]) ? $data[$key] : Uuid::uuid6()->toString();
 
         $result = $this->runQuery(
             $this->grammar->compileCreate($this, $id, $data),
             'create'
         );
 
-        if (!isset($result['result']) || $result['result'] !== 'created') {
-            throw new RunTimeException('Create params: '.json_encode($this->getLastQueryLog()));
+        if (! isset($result['result']) || $result['result'] !== 'created') {
+            throw new RunTimeException('Create error, params: '.json_encode($this->getLastQueryLog()));
         }
 
         $data['_id'] = $id;
+        $data['_result'] = $result;
 
-        return (object) $data;
+        return (object)$data;
     }
 
     /**
-     * @param $id
+     * @param array $data
+     * @param string|int|null $id
+     * @param string $key
+     *
+     * @return Collection
+     */
+    public function createCollection(array $data, $id = null, $key = 'id'): Collection
+    {
+        return Collection::make($this->create($data, $id, $key));
+    }
+
+    /**
+     * @param string|int $id
      * @param array $data
      *
      * @return bool
@@ -623,7 +637,7 @@ class Builder
     {
         $result = $this->runQuery($this->grammar->compileUpdate($this, $id, $data), 'update');
 
-        if (!isset($result['result']) || $result['result'] !== 'updated') {
+        if (! isset($result['result']) || $result['result'] !== 'updated') {
             throw new RunTimeException('Update error params: '.json_encode($this->getLastQueryLog()));
         }
 
@@ -631,15 +645,15 @@ class Builder
     }
 
     /**
-     * @param $id
+     * @param string|int $id
      *
      * @return bool
      */
-    public function delete($id)
+    public function delete($id): bool
     {
         $result = $this->runQuery($this->grammar->compileDelete($this, $id), 'delete');
 
-        if (!isset($result['result']) || $result['result'] !== 'deleted') {
+        if (! isset($result['result']) || $result['result'] !== 'deleted') {
             throw new RunTimeException('Delete error params:'.json_encode($this->getLastQueryLog()));
         }
 
@@ -672,6 +686,7 @@ class Builder
     public function setGrammar(Grammar $grammar)
     {
         $this->grammar = $grammar;
+//        $this->originalGrammar = clone $grammar;
 
         return $this;
     }
@@ -683,17 +698,17 @@ class Builder
      */
     public function setElasticSearch(Client $client)
     {
-        $this->elastisearch = $client;
+        $this->elasticsearch = $client;
 
         return $this;
     }
 
     /**
-     * @return Client|null
+     * @return Client
      */
-    public function getElasticSearch()
+    public function getElasticSearch(): Client
     {
-        return $this->elastisearch;
+        return $this->elasticsearch;
     }
 
     /**
@@ -729,19 +744,19 @@ class Builder
      */
     public function getLastQueryLog(): array
     {
-        return empty($this->queryLogs) ? '' : end($this->queryLogs);
+        return empty($this->queryLogs) ? [] : end($this->queryLogs);
     }
 
     /**
-     * @return \Elasticsearch\Client
+     * @return Client
      */
-    public function search()
+    public function search(): Client
     {
-        return $this->elastisearch;
+        return $this->getElasticSearch();
     }
 
     /**
-     * @param array  $params
+     * @param array $params
      * @param string $method
      *
      * @return mixed
@@ -752,7 +767,20 @@ class Builder
             $this->queryLogs[] = $params;
         }
 
-        return call_user_func([$this->elastisearch, $method], $params);
+        return call_user_func([$this->elasticsearch, $method], $params);
+
+//        $this->resetGrammar();
+
+//        return $result;
+    }
+
+    /**
+     *
+     * @return void
+     */
+    protected function resetGrammar(): void
+    {
+        $this->grammar = clone $this->originalGrammar;
     }
 
     /**
@@ -762,7 +790,7 @@ class Builder
      */
     protected function metaData(array $results): Collection
     {
-        return collect($results['hits']['hits'])->map(function ($hit) {
+        return Collection::make($results['hits']['hits'])->map(function ($hit) {
             return $this->sourceToObject($hit);
         });
     }
@@ -772,18 +800,18 @@ class Builder
      *
      * @return object
      */
-    protected function sourceToObject(array $result): stdClass
+    protected function sourceToObject(array $result): object
     {
-        return (object) array_merge($result['_source'], ['_id' => $result['_id']]);
+        return (object)array_merge($result['_source'], ['_id' => $result['_id'], '_score' => $result['_score']]);
     }
 
     /**
-     * @param $query
+     * @param Builder $query
      * @param string $boolean
      *
      * @return Builder
      */
-    protected function addNestedWhereQuery($query, $boolean = 'and'): self
+    protected function addNestedWhereQuery(Builder $query, string $boolean = 'and'): self
     {
         if (count($query->wheres)) {
             $type = 'Nested';

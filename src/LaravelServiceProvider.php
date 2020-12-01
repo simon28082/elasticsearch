@@ -1,16 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CrCms\ElasticSearch;
 
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
 use Illuminate\Support\ServiceProvider;
 
-/**
- * Class LaravelServiceProvider.
- *
- * @author simon
- */
 class LaravelServiceProvider extends ServiceProvider
 {
     /**
@@ -29,6 +24,7 @@ class LaravelServiceProvider extends ServiceProvider
     }
 
     /**
+     *
      * @return void
      */
     public function register()
@@ -40,44 +36,20 @@ class LaravelServiceProvider extends ServiceProvider
     }
 
     /**
+     *
      * @return void
      */
-    protected function bindBuilder()
+    protected function bindBuilder(): void
     {
         $this->app->bind(Builder::class, function ($app) {
-            return new Builder(
-                $this->app->make('config')->get('search'),
-                new Grammar(),
-                $this->clientBuilder()
-            );
+            return Factory::builder($app->make('config')->get('search'), $app->make('logger'));
         });
     }
 
     /**
-     * @return Client
-     */
-    protected function clientBuilder(): Client
-    {
-        $clientBuilder = ClientBuilder::create();
-
-        $clientBuilder
-            ->setConnectionPool($this->app->make('config')->get('search.connection_pool'))
-            ->setSelector($this->app->make('config')->get('search.selector'))
-            ->setHosts($this->app->make('config')->get('search.hosts'));
-
-        if ($this->app->make('config')->get('search.open_log')) {
-            $clientBuilder->setLogger(
-                ClientBuilder::defaultLogger($this->app->make('config')->get('search.log_path'))
-            );
-        }
-
-        return $clientBuilder->build();
-    }
-
-    /**
      * @return void
      */
-    protected function mergeConfig()
+    protected function mergeConfig(): void
     {
         if ($this->isLumen()) {
             $this->app->configure('search');
