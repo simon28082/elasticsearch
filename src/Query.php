@@ -74,16 +74,6 @@ class Query
      * @var Client
      */
     protected $elasticsearch;
-//
-//    /**
-//     * @var array
-//     */
-//    protected $queryLogs = [];
-//
-//    /**
-//     * @var bool
-//     */
-//    protected $enableQueryLog = false;
 
     /**
      * @var array
@@ -101,7 +91,7 @@ class Query
     }
 
     /**
-     * @param $index
+     * @param string|array $index
      *
      * @return Query
      */
@@ -113,7 +103,7 @@ class Query
     }
 
     /**
-     * @param $type
+     * @param string $type
      *
      * @return Query
      */
@@ -182,7 +172,7 @@ class Query
     }
 
     /**
-     * @param $field
+     * @param string|array $field
      * @param $type
      *
      * @return Query
@@ -209,7 +199,7 @@ class Query
     }
 
     /**
-     * @param $columns
+     * @param string|array $columns
      *
      * @return Query
      */

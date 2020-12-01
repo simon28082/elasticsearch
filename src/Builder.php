@@ -10,6 +10,34 @@ use Ramsey\Uuid\Uuid;
 use RuntimeException;
 use BadMethodCallException;
 
+/**
+ * @method static Builder index(string|array $index)
+ * @method static Builder type(string $type)
+ * @method static Builder limit(int $value)
+ * @method static Builder take(int $value)
+ * @method static Builder offset(int $value)
+ * @method static Builder skip(int $value)
+ * @method static Builder orderBy(string $field, $sort)
+ * @method static Builder aggBy(string | array $field, $type = null)
+ * @method static Builder scroll(string $scroll)
+ * @method static Builder select(string |array $columns)
+ * @method static Builder whereMatch($field, $value, $boolean = 'and')
+ * @method static Builder orWhereMatch($field, $value, $boolean = 'or')
+ * @method static Builder whereTerm($field, $value, $boolean = 'and')
+ * @method static Builder whereIn($field, array $value):
+ * @method static Builder orWhereIn($field, array $value): self
+ * @method static Builder orWhereTerm($field, $value, $boolean = 'or')
+ * @method static Builder whereRange($field, $operator = null, $value = null, $boolean = 'and')
+ * @method static Builder orWhereRange($field, $operator = null, $value = null)
+ * @method static Builder whereBetween($field, array $values, $boolean = 'and')
+ * @method static Builder orWhereBetween($field, array $values)
+ * @method static Builder where($column, $operator = null, $value = null, string $leaf = 'term', string $boolean = 'and')
+ * @method static Builder orWhere($field, $operator = null, $value = null, $leaf = 'term')
+ * @method static Builder whereNested(Closure $callback, string $boolean)
+ * @method static Builder newQuery()
+ * @method static Builder getElasticSearch()
+ *
+ */
 class Builder
 {
     /**
