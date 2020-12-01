@@ -9,6 +9,7 @@
 
 | Elasticsearch Version | crcms/elasticsearch Branch |
 | --------------------- | ------------------------ |
+| >= 7.0                | master(beta unstable)                      |
 | >= 6.0                | 1.*                      |
 | >= 5.0, < 6.0         | 0.*                      |
 
@@ -20,10 +21,21 @@ You can install the package via composer:
 composer require crcms/elasticsearch
 ```
 
-## Laravel
+> Please install if you want to use the latest version `dev-master`
 
-Modify ``config / app.php``
+## Use
 
+### Non-Laravel framework
+
+```php
+// select config path
+$config = require 'search.php';
+$builder = Factory::builder($config);
+```
+
+### Laravel
+
+Modify `config / app.php` If the version is less <= 5.5
 ```
 'providers' => [
     CrCms\ElasticSearch\LaravelServiceProvider::class,
@@ -43,56 +55,44 @@ php artisan vendor:publish --provider="CrCms\ElasticSearch\LaravelServiceProvide
 ### Create
 
 ```php
+$builder->index('index')->type('type')->create([
+    'key' => 'value'
+]);
 
-Route::get('test/create',function(\CrCms\ElasticSearch\Builder $builder){
-    $result = $builder->index('index')->type('type')->create([
-		'key' => 'value',
-    ]);
-    dump($result);
-});
-
+// return a collection
+$builder->index('index')->type('type')->createCollection([
+    'key' => 'value'
+]);
 ```
 
 ### Update
 
 ```php
-
-Route::get('test/create',function(\CrCms\ElasticSearch\Builder $builder){
-    $result = $builder->index('index')->type('type')->update('id',[
-		'key' => 'value2',
-    ]);
-    dump($result);
-});
+$builder->index('index')->type('type')->update([
+    'key' => 'value1'
+]);
 
 ```
 
 ### Delete
 
 ```php
-
-Route::get('test/create',function(\CrCms\ElasticSearch\Builder $builder){
-    $result = $builder->index('index')->type('type')->delete('id');
-    dump($result);
-});
-
+$builder->index('index')->type('type')->delete($result->_id);
 ```
 
 ### Select
 
 ```php
 
-Route::get('test/create',function(\CrCms\ElasticSearch\Builder $builder){
-    $builder = $builder->index('index')->type('type');
+$builder = $builder->index('index')->type('type');
 	
-	//SQL:select ... where id = 1 limit 1;
-	$result = $builder->whereTerm('id',1)->first();
-	
-	//SQL:select ... where (key=1 or key=2) and key1=1
-	$result = $builder->where(function (Builder $inQuery) {
-		$inQuery->whereTerm('key',1)->orWhereTerm('key',2)
-	})->whereTerm('key1',1)->get();
-	
-});
+//SQL:select ... where id = 1 limit 1;
+$result = $builder->whereTerm('id',1)->first();
+
+//SQL:select ... where (key=1 or key=2) and key1=1
+$result = $builder->where(function (Query $inQuery) {
+    $inQuery->whereTerm('key',1)->orWhereTerm('key',2)
+})->whereTerm('key1',1)->get();
 
 ```
 
@@ -267,7 +267,7 @@ dump($build->getLastQueryLog());
 getElasticSearch() // or search()
 ```
 
-
+> If you want to expand more, you can use this method
 
 
 ## License
