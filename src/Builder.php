@@ -89,16 +89,14 @@ class Builder
             $this->query->limit($perPage);
         }
 
-        $results = $this->runQuery($this->grammar->compileSelect($this->query));
+        $results = $this->runQuery($this->query->getGrammar()->compileSelect($this->query));
 
-        $data = collect($results['hits']['hits'])->map(function ($hit) {
-            return (object)array_merge($hit['_source'], ['_id' => $hit['_id']]);
-        });
+        $data = $this->metaData($results);
 
-        $maxPage = intval(ceil($results['hits']['total'] / $perPage));
+        $maxPage = intval(ceil($results['hits']['total']['value'] / $perPage));
 
         return Collection::make([
-            'total' => $results['hits']['total'],
+            'total' => $results['hits']['total']['value'],
             'per_page' => $perPage,
             'current_page' => $page,
             'next_page' => $page < $maxPage ? $page + 1 : $maxPage,
@@ -151,36 +149,36 @@ class Builder
      */
     public function chunk(callable $callback, $limit = 2000, $scroll = '10m')
     {
-//        if (empty($this->query->scroll)) {
-//            $this->query->scroll($scroll);
-//        }
+        if (empty($this->query->scroll)) {
+            $this->query->scroll($scroll);
+        } else {
+            $scroll = $this->query->scroll;
+        }
 
-//        if (empty($this->query->limit)) {
-//            $this->query->limit($limit);
-//        }
+        if (empty($this->query->limit)) {
+            $this->query->limit($limit);
+        } else {
+            $limit = $this->query->limit;
+        }
 
         $condition = $this->query->getGrammar()->compileSelect($this->query);
         $results = $this->runQuery($condition, 'search');
-        $r2 = $this->runQuery($condition, 'count');
-        dd($r2, $results);
-        exit();
 
-        if ($results['hits']['total'] === 0) {
+        if ($results['hits']['total']['value'] === 0) {
             return;
         }
 
-        $total = $this->query->limit;
-        var_dump($results['hits']['total'], $this->query->limit);
-        var_dump(22222);
-        exit();
-        $whileNum = intval(floor($results['hits']['total'] / $this->query->limit));
+        // First total eq limit
+        $total = $limit;
+
+        $whileNum = intval(floor($results['hits']['total']['value'] / $total));
 
         do {
             if (call_user_func($callback, $this->metaData($results)) === false) {
                 return false;
             }
 
-            $results = $this->runQuery(array_merge($condition, ['scroll_id' => $results['_scroll_id'], 'scroll' => $this->query->scroll]), 'scroll');
+            $results = $this->runQuery(['scroll_id' => $results['_scroll_id'], 'scroll' => $scroll], 'scroll');
 
             $total += count($results['hits']['hits']);
         } while ($whileNum--);
@@ -232,7 +230,7 @@ class Builder
      */
     public function update($id, array $data): bool
     {
-        $result = $this->runQuery($this->query->getGrammar()->compileUpdate($this, $id, $data), 'update');
+        $result = $this->runQuery($this->query->getGrammar()->compileUpdate($this->query, $id, $data), 'update');
 
         if (! isset($result['result']) || $result['result'] !== 'updated') {
             throw new RunTimeException('Update error params: '.json_encode($this->query->getLastQueryLog()));

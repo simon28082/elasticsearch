@@ -56,7 +56,7 @@ class BuildTest extends TestCase
      */
     public function testUpdate(object $result)
     {
-        $updateResult = static::$build->update($result->_id, ['key' => 'new value']);
+        $updateResult = static::$build->index('index')->type('type')->update($result->_id, ['key' => 'new value']);
         $this->assertTrue($updateResult);
         return $result;
     }
@@ -69,7 +69,7 @@ class BuildTest extends TestCase
      */
     public function testDelete(object $result)
     {
-        $deleteResult = static::$build->delete($result->_id);
+        $deleteResult = static::$build->index('index')->type('type')->delete($result->_id);
         $this->assertTrue($deleteResult);
     }
 
@@ -104,18 +104,28 @@ class BuildTest extends TestCase
     public function testChunk()
     {
         $index = uniqid();
-        $type = uniqid();
         for ($i = 0; $i <= 10; $i++) {
-            $result = static::$build->index($index)->type($type)->create(['value' => $i]);
+            $result = static::$build->index($index)->create(['value' => $i]);
             $this->assertTrue(! is_null($result));
         }
-        static::$build->enableQueryLog();
-        $v = static::$build->index($index)->type($type)->count();
-        dd($v, 111, static::$build->getLastQueryLog());
 
         static::$build->index($index)->whereIn('value', [1, 3, 5, 7, 9])->chunk(function ($result) {
-            var_dump($result);
-            var_dump('@@@@@@@');
+            foreach ($result as $value) {
+                $this->assertTrue(in_array($value->value, [1, 3, 5, 7, 9]));
+            }
+
         }, 2);
+    }
+
+    public function testPaginate()
+    {
+        $index = uniqid();
+        for ($i = 0; $i <= 100; $i++) {
+            $result = static::$build->index($index)->create(['value' => $i]);
+            $this->assertTrue(! is_null($result));
+        }
+        sleep(2);
+        $result = static::$build->index($index)->whereIn('value', [1, 3, 5, 7, 9])->paginate(1, 2);
+        $this->assertTrue(! empty($result->get('data')));
     }
 }

@@ -6,7 +6,6 @@ namespace CrCms\ElasticSearch;
 
 use Elasticsearch\Client;
 use Closure;
-use BadMethodCallException;
 
 class Query
 {
@@ -477,42 +476,6 @@ class Query
     {
         return $this->elasticsearch;
     }
-//
-//    /**
-//     * @return Query
-//     */
-//    public function enableQueryLog(): self
-//    {
-//        $this->enableQueryLog = true;
-//
-//        return $this;
-//    }
-//
-//    /**
-//     * @return Query
-//     */
-//    public function disableQueryLog(): self
-//    {
-//        $this->enableQueryLog = false;
-//
-//        return $this;
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function getQueryLog(): array
-//    {
-//        return $this->queryLogs;
-//    }
-//
-//    /**
-//     * @return array
-//     */
-//    public function getLastQueryLog(): array
-//    {
-//        return empty($this->queryLogs) ? [] : end($this->queryLogs);
-//    }
 
     /**
      * @return Client
@@ -521,21 +484,6 @@ class Query
     {
         return $this->getElasticSearch();
     }
-
-//    /**
-//     * @param array $params
-//     * @param string $method
-//     *
-//     * @return mixed
-//     */
-//    public function runQuery(array $params, string $method = 'search')
-//    {
-//        if ($this->enableQueryLog) {
-//            $this->queryLogs[] = $params;
-//        }
-//
-//        return call_user_func([$this->elasticsearch, $method], $params);
-//    }
 
     /**
      * @param Query $query
@@ -552,19 +500,4 @@ class Query
 
         return $this;
     }
-//
-//    /**
-//     * @param string $name
-//     * @param array $arguments
-//     *
-//     * @return mixed
-//     */
-//    public function __call(string $name, array $arguments)
-//    {
-//        if (method_exists($this->query, $name)) {
-//            return call_user_func_array([$this->query, $name], $arguments);
-//        }
-//
-//        throw new BadMethodCallException(sprintf('The method[%s] not found', $name));
-//    }
 }
