@@ -269,6 +269,8 @@ getElasticSearch() // or search()
 
 > If you want to expand more, you can use this method, call https://github.com/elastic/elasticsearch-php
 
-
+## Other
+For more examples, please see test cases
+https://github.com/crcms/elasticsearch/blob/master/tests/BuildTest.php
 ## License
 [MIT license](https://opensource.org/licenses/MIT)
