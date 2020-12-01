@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
 class Factory
 {
     /**
-     * @param array $config
+     * @param array                $config
      * @param LoggerInterface|null $logger
      *
      * @return Builder
@@ -20,12 +20,12 @@ class Factory
     public static function builder(array $config, ?LoggerInterface $logger = null): Builder
     {
         return new Builder(
-            new Query(new Grammar, static::clientBuilder($config, $logger))
+            new Query(new Grammar(), static::clientBuilder($config, $logger))
         );
     }
 
     /**
-     * @param array $config
+     * @param array                $config
      * @param LoggerInterface|null $logger
      *
      * @return Client

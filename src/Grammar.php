@@ -13,13 +13,13 @@ class Grammar
      */
     protected $selectComponents = [
         '_source' => 'columns',
-        'query' => 'wheres',
+        'query'   => 'wheres',
         'aggs',
-        'sort' => 'orders',
-        'size' => 'limit',
-        'from' => 'offset',
-        'index' => 'index',
-        'type' => 'type',
+        'sort'   => 'orders',
+        'size'   => 'limit',
+        'from'   => 'offset',
+        'index'  => 'index',
+        'type'   => 'type',
         'scroll' => 'scroll',
     ];
 
@@ -82,7 +82,7 @@ class Grammar
     public function compileCreate(Query $builder, $id, array $data): array
     {
         return array_merge([
-            'id' => $id,
+            'id'   => $id,
             'body' => $data,
         ], $this->compileComponents($builder));
     }
@@ -110,7 +110,7 @@ class Grammar
     public function compileUpdate(Query $builder, $id, array $data): array
     {
         return array_merge([
-            'id' => $id,
+            'id'   => $id,
             'body' => ['doc' => $data],
         ], $this->compileComponents($builder));
     }
@@ -205,7 +205,7 @@ class Grammar
                 }
             }
 
-            if (! empty($must)) {
+            if (!empty($must)) {
                 $bool['bool'][$operation][] = count($must) === 1 ? array_shift($must) : ['bool' => ['must' => $must]];
             }
         }
@@ -214,8 +214,8 @@ class Grammar
     }
 
     /**
-     * @param string $leaf
-     * @param string $column
+     * @param string      $leaf
+     * @param string      $column
      * @param string|null $operator
      * @param $value
      *
@@ -240,7 +240,7 @@ class Grammar
     protected function wherePriorityGroup(array $wheres): array
     {
         //get "or" index from array
-        $orIndex = (array)array_keys(array_map(function ($where) {
+        $orIndex = (array) array_keys(array_map(function ($where) {
             return $where['boolean'];
         }, $wheres), 'or');
 
@@ -267,7 +267,7 @@ class Grammar
         $body = [];
 
         foreach ($this->selectComponents as $key => $component) {
-            if (! empty($query->$component)) {
+            if (!empty($query->$component)) {
                 $method = 'compile'.ucfirst($component);
 
                 $body[is_numeric($key) ? $component : $key] = $this->$method($query, $query->$component);
