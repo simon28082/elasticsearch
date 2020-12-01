@@ -20,9 +20,7 @@ class Factory
     public static function builder(array $config, ?LoggerInterface $logger = null): Builder
     {
         return new Builder(
-            $config,
-            new Grammar,
-            static::clientBuilder($config, $logger)
+            new Query(new Grammar, static::clientBuilder($config, $logger))
         );
     }
 

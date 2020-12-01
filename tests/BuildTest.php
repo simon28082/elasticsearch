@@ -80,27 +80,42 @@ class BuildTest extends TestCase
         ]);
 
         // count
-        $count = static::$build->where('key', 'value')->count();
+        $count = static::$build->index('index1')->where('key', 'value')->count();
         $this->assertTrue($count > 0);
 
         // get
-        $result = static::$build->where('key', 'value')->get();
-        var_dump($result);
+        $result = static::$build->index('index1')->where('key', 'value')->get();
         $this->assertTrue($result->count() > 0);
         $this->assertObjectHasAttribute('_id', $result->first());
         $this->assertObjectHasAttribute('_score', $result->first());
         $this->assertObjectHasAttribute('key', $result->first());
 
-        $one = static::$build->where('key', 'vu')->first();
+        $one = static::$build->index('index1')->where('key', 'vu')->first();
         $this->assertTrue(is_null($one));
 
         static::$build->enableQueryLog();
-        $oneExists = static::$build->where('key', 'value')->first();
-        var_dump($oneExists, static::$build->getLastQueryLog());
-//        exit();
+        $oneExists = static::$build->index('index1')->where('key', 'value')->first();
         $this->assertTrue(! is_null($oneExists));
         $this->assertObjectHasAttribute('_id', $oneExists);
         $this->assertObjectHasAttribute('_score', $oneExists);
         $this->assertObjectHasAttribute('key', $oneExists);
+    }
+
+    public function testChunk()
+    {
+        $index = uniqid();
+        $type = uniqid();
+        for ($i = 0; $i <= 10; $i++) {
+            $result = static::$build->index($index)->type($type)->create(['value' => $i]);
+            $this->assertTrue(! is_null($result));
+        }
+        static::$build->enableQueryLog();
+        $v = static::$build->index($index)->type($type)->count();
+        dd($v, 111, static::$build->getLastQueryLog());
+
+        static::$build->index($index)->whereIn('value', [1, 3, 5, 7, 9])->chunk(function ($result) {
+            var_dump($result);
+            var_dump('@@@@@@@');
+        }, 2);
     }
 }

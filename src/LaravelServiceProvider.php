@@ -41,7 +41,7 @@ class LaravelServiceProvider extends ServiceProvider
      */
     protected function bindBuilder(): void
     {
-        $this->app->bind(Builder::class, function ($app) {
+        $this->app->singleton(Builder::class, function ($app) {
             return Factory::builder($app->make('config')->get('search'), $app->make('logger'));
         });
     }

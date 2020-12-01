@@ -24,41 +24,41 @@ class Grammar
     ];
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      *
      * @return int
      */
-    public function compileOffset(Builder $builder): int
+    public function compileOffset(Query $builder): int
     {
         return $builder->offset;
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      *
      * @return int
      */
-    public function compileLimit(Builder $builder): int
+    public function compileLimit(Query $builder): int
     {
         return $builder->limit;
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      *
      * @return string
      */
-    public function compileScroll(Builder $builder): string
+    public function compileScroll(Query $builder): string
     {
         return $builder->scroll;
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      *
      * @return array
      */
-    public function compileSelect(Builder $builder)
+    public function compileSelect(Query $builder)
     {
         $body = $this->compileComponents($builder);
         $index = Arr::pull($body, 'index');
@@ -73,13 +73,13 @@ class Grammar
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      * @param $id
      * @param array $data
      *
      * @return array
      */
-    public function compileCreate(Builder $builder, $id, array $data): array
+    public function compileCreate(Query $builder, $id, array $data): array
     {
         return array_merge([
             'id' => $id,
@@ -88,12 +88,12 @@ class Grammar
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      * @param $id
      *
      * @return array
      */
-    public function compileDelete(Builder $builder, $id): array
+    public function compileDelete(Query $builder, $id): array
     {
         return array_merge([
             'id' => $id,
@@ -101,13 +101,13 @@ class Grammar
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      * @param $id
      * @param array $data
      *
      * @return array
      */
-    public function compileUpdate(Builder $builder, $id, array $data): array
+    public function compileUpdate(Query $builder, $id, array $data): array
     {
         return array_merge([
             'id' => $id,
@@ -116,11 +116,11 @@ class Grammar
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      *
      * @return array
      */
-    public function compileAggs(Builder $builder): array
+    public function compileAggs(Query $builder): array
     {
         $aggs = [];
 
@@ -136,41 +136,41 @@ class Grammar
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      *
      * @return array
      */
-    public function compileColumns(Builder $builder): array
+    public function compileColumns(Query $builder): array
     {
         return $builder->columns;
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      *
      * @return string
      */
-    public function compileIndex(Builder $builder): string
+    public function compileIndex(Query $builder): string
     {
         return is_array($builder->index) ? implode(',', $builder->index) : $builder->index;
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      *
      * @return string
      */
-    public function compileType(Builder $builder): string
+    public function compileType(Query $builder): string
     {
         return $builder->type;
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      *
      * @return array
      */
-    public function compileOrders(Builder $builder): array
+    public function compileOrders(Query $builder): array
     {
         $orders = [];
 
@@ -182,11 +182,11 @@ class Grammar
     }
 
     /**
-     * @param Builder $builder
+     * @param Query $builder
      *
      * @return array
      */
-    protected function compileWheres(Builder $builder): array
+    protected function compileWheres(Query $builder): array
     {
         $whereGroups = $this->wherePriorityGroup($builder->wheres);
 
@@ -201,7 +201,6 @@ class Grammar
                 if ($where['type'] === 'Nested') {
                     $must[] = $this->compileWheres($where['query']);
                 } else {
-                    //$must[] = [$where['leaf'] => [$where['column'] => $where['value']]];
                     $must[] = $this->whereLeaf($where['leaf'], $where['column'], $where['operator'], $where['value']);
                 }
             }
@@ -259,11 +258,11 @@ class Grammar
     }
 
     /**
-     * @param Builder $query
+     * @param Query $query
      *
      * @return array
      */
-    protected function compileComponents(Builder $query): array
+    protected function compileComponents(Query $query): array
     {
         $body = [];
 
