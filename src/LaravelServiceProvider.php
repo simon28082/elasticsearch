@@ -24,7 +24,6 @@ class LaravelServiceProvider extends ServiceProvider
     }
 
     /**
-     *
      * @return void
      */
     public function register()
@@ -36,7 +35,6 @@ class LaravelServiceProvider extends ServiceProvider
     }
 
     /**
-     *
      * @return void
      */
     protected function bindBuilder(): void

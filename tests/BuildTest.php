@@ -16,7 +16,6 @@ class BuildTest extends TestCase
     public static $build;
 
     /**
-     *
      * @return void
      */
     public static function setUpBeforeClass(): void
@@ -25,7 +24,7 @@ class BuildTest extends TestCase
 
         $config = require __DIR__.'/../config/search.php';
         $config['hosts'] = [
-            '172.16.12.69:9200'
+            '172.16.12.69:9200',
         ];
         $config['open_log'] = true;
 
@@ -33,13 +32,12 @@ class BuildTest extends TestCase
     }
 
     /**
-     *
      * @return object
      */
     public function testCreate()
     {
         $result = static::$build->index('index')->type('type')->create([
-            'key' => 'value'
+            'key' => 'value',
         ]);
 
         self::assertObjectHasAttribute('_id', $result);
@@ -58,11 +56,13 @@ class BuildTest extends TestCase
     {
         $updateResult = static::$build->index('index')->type('type')->update($result->_id, ['key' => 'new value']);
         $this->assertTrue($updateResult);
+
         return $result;
     }
 
     /**
      * @depends testUpdate
+     *
      * @param object $result
      *
      * @return void
@@ -76,7 +76,7 @@ class BuildTest extends TestCase
     public function testGet()
     {
         $create = static::$build->index('index1')->create([
-            'key' => 'value'
+            'key' => 'value',
         ]);
 
         // count
@@ -95,7 +95,7 @@ class BuildTest extends TestCase
 
         static::$build->enableQueryLog();
         $oneExists = static::$build->index('index1')->where('key', 'value')->first();
-        $this->assertTrue(! is_null($oneExists));
+        $this->assertTrue(!is_null($oneExists));
         $this->assertObjectHasAttribute('_id', $oneExists);
         $this->assertObjectHasAttribute('_score', $oneExists);
         $this->assertObjectHasAttribute('key', $oneExists);
@@ -106,14 +106,13 @@ class BuildTest extends TestCase
         $index = uniqid();
         for ($i = 0; $i <= 10; $i++) {
             $result = static::$build->index($index)->create(['value' => $i]);
-            $this->assertTrue(! is_null($result));
+            $this->assertTrue(!is_null($result));
         }
 
         static::$build->index($index)->whereIn('value', [1, 3, 5, 7, 9])->chunk(function ($result) {
             foreach ($result as $value) {
                 $this->assertTrue(in_array($value->value, [1, 3, 5, 7, 9]));
             }
-
         }, 2);
     }
 
@@ -122,10 +121,10 @@ class BuildTest extends TestCase
         $index = uniqid();
         for ($i = 0; $i <= 100; $i++) {
             $result = static::$build->index($index)->create(['value' => $i]);
-            $this->assertTrue(! is_null($result));
+            $this->assertTrue(!is_null($result));
         }
         sleep(2);
         $result = static::$build->index($index)->whereIn('value', [1, 3, 5, 7, 9])->paginate(1, 2);
-        $this->assertTrue(! empty($result->get('data')));
+        $this->assertTrue(!empty($result->get('data')));
     }
 }
