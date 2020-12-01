@@ -63,7 +63,7 @@ class Query
         '>=' => 'gte',
         '<'  => 'lt',
         '<=' => 'lte',
-        "!=" => "ne"
+        '!=' => 'ne',
     ];
 
     /**
@@ -346,7 +346,7 @@ class Query
      */
     public function whereNotBetween($field, array $values, $boolean = 'and'): self
     {
-        return $this->where($field, "!=", $values, 'range', $boolean);
+        return $this->where($field, '!=', $values, 'range', $boolean);
     }
 
     /**
@@ -366,9 +366,9 @@ class Query
      *
      * @return Query
      */
-    public function whereExists($field,$boolean = 'and'): self
+    public function whereExists($field, $boolean = 'and'): self
     {
-        return $this->where($field, "=", "", "exists", $boolean);
+        return $this->where($field, '=', '', 'exists', $boolean);
     }
 
     /**
@@ -377,11 +377,10 @@ class Query
      *
      * @return Query
      */
-    public function whereNotExists($field,$boolean = 'and'): self
+    public function whereNotExists($field, $boolean = 'and'): self
     {
-        return $this->where($field, "!=", "", "exists", $boolean);
+        return $this->where($field, '!=', '', 'exists', $boolean);
     }
-
 
     /**
      * @param Closure|string $column
@@ -406,7 +405,7 @@ class Query
             list($value, $operator) = [$operator, null];
         }
 
-        if (in_array($operator,[">=",">","<=","<"])) {
+        if (in_array($operator, ['>=', '>', '<=', '<'])) {
             $leaf = 'range';
         }
 
