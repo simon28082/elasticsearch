@@ -21,16 +21,16 @@
     "elasticsearch/elasticsearch": "~7.0",
     "ramsey/uuid": "^4.1"
   },
+  "require-dev": {
+    "phpunit/phpunit": "^9.4",
+    "symfony/var-dumper": "^5.2"
+  },
   "autoload": {
-    "files": [
-    ],
     "psr-4": {
       "CrCms\\ElasticSearch\\": "src/"
     }
   },
   "autoload-dev": {
-    "files": [
-    ],
     "psr-4": {
       "CrCms\\ElasticSearch\\Test\\": "tests/"
     }
@@ -43,9 +43,5 @@
       "aliases": {
       }
     }
-  },
-  "require-dev": {
-    "phpunit/phpunit": "^9.4",
-    "symfony/var-dumper": "^5.2"
   }
 }
