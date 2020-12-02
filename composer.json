@@ -5,16 +5,14 @@
     "elasticsearch",
     "laravel",
     "sql",
-    "orm",
-    "php"
+    "orm"
   ],
   "homepage": "https://github.com/crcms/elasticsearch",
   "license": "MIT",
   "authors": [
     {
       "name": "simon",
-      "email": "crcms@crcms.cn",
-      "homepage": "http://crcms.cn"
+      "email": "simon@crcms.cn"
     }
   ],
   "require": {
