@@ -40,7 +40,7 @@ class LaravelServiceProvider extends ServiceProvider
     protected function bindBuilder(): void
     {
         $this->app->singleton(Builder::class, function ($app) {
-            return Factory::builder($app->make('config')->get('search'), $app->make('logger'));
+            return Factory::builder($app->make('config')->get('search'), $app->make('log'));
         });
     }
 
