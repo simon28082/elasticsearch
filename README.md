@@ -186,6 +186,18 @@ public function orWhereRange($field, $operator = null, $value = null): self
 ```php
 public function whereBetween($field, array $values, $boolean = 'and'): self
 ```
+```php
+public function whereNotBetween($field, array $values): self
+```
+```php
+public function orWhereNotBetween(string $field, array $values): self
+```
+```php
+public function whereExists($field, $boolean = 'and'): self
+```
+```php
+public function whereNotExists($field, $boolean = 'and'): self
+```
 
 ```php
 public function orWhereBetween($field, array $values): self
