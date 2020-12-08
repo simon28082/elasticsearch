@@ -58,10 +58,10 @@ class Query
      * @var array
      */
     public $operators = [
-        '='  => 'eq',
-        '>'  => 'gt',
+        '=' => 'eq',
+        '>' => 'gt',
         '>=' => 'gte',
-        '<'  => 'lt',
+        '<' => 'lt',
         '<=' => 'lte',
         '!=' => 'ne',
     ];
@@ -83,7 +83,7 @@ class Query
 
     /**
      * @param Grammar $grammar
-     * @param Client  $client
+     * @param Client $client
      */
     public function __construct(Grammar $grammar, Client $client)
     {
@@ -291,8 +291,8 @@ class Query
 
     /**
      * @param $field
-     * @param null   $operator
-     * @param null   $value
+     * @param null $operator
+     * @param null $value
      * @param string $boolean
      *
      * @return Query
@@ -316,7 +316,7 @@ class Query
 
     /**
      * @param $field
-     * @param array  $values
+     * @param array $values
      * @param string $boolean
      *
      * @return Query
@@ -339,7 +339,7 @@ class Query
 
     /**
      * @param $field
-     * @param array  $values
+     * @param array $values
      * @param string $boolean
      *
      * @return Query
@@ -353,7 +353,7 @@ class Query
      * @param $field
      * @param array $values
      *
-     * @return Builder
+     * @return Query
      */
     public function orWhereNotBetween($field, array $values): self
     {
@@ -384,10 +384,10 @@ class Query
 
     /**
      * @param Closure|string $column
-     * @param string|null    $operator
-     * @param string|null    $value
-     * @param string         $leaf
-     * @param string         $boolean
+     * @param string|null $operator
+     * @param string|null $value
+     * @param string $leaf
+     * @param string $boolean
      *
      * @return Query
      */
@@ -434,8 +434,8 @@ class Query
 
     /**
      * @param $field
-     * @param null   $operator
-     * @param null   $value
+     * @param null $operator
+     * @param null $value
      * @param string $leaf
      *
      * @return Query
@@ -451,7 +451,7 @@ class Query
 
     /**
      * @param Closure $callback
-     * @param string  $boolean
+     * @param string $boolean
      *
      * @return Query
      */
@@ -521,7 +521,7 @@ class Query
     }
 
     /**
-     * @param Query  $query
+     * @param Query $query
      * @param string $boolean
      *
      * @return Query

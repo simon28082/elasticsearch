@@ -30,7 +30,11 @@ use RuntimeException;
  * @method Builder whereRange($field, $operator = null, $value = null, $boolean = 'and')
  * @method Builder orWhereRange($field, $operator = null, $value = null)
  * @method Builder whereBetween($field, array $values, $boolean = 'and')
+ * @method Builder whereNotBetween($field, array $values)
  * @method Builder orWhereBetween($field, array $values)
+ * @method Builder orWhereNotBetween(string $field, array $values)
+ * @method Builder whereExists($field, $boolean = 'and')
+ * @method Builder whereNotExists($field, $boolean = 'and')
  * @method Builder where($column, $operator = null, $value = null, string $leaf = 'term', string $boolean = 'and')
  * @method Builder orWhere($field, $operator = null, $value = null, $leaf = 'term')
  * @method Builder whereNested(Closure $callback, string $boolean)
@@ -121,15 +125,15 @@ class Builder
         $maxPage = intval(ceil($results['hits']['total']['value'] / $perPage));
 
         return Collection::make([
-            'total'        => $results['hits']['total']['value'],
-            'per_page'     => $perPage,
+            'total' => $results['hits']['total']['value'],
+            'per_page' => $perPage,
             'current_page' => $page,
-            'next_page'    => $page < $maxPage ? $page + 1 : $maxPage,
+            'next_page' => $page < $maxPage ? $page + 1 : $maxPage,
             //'last_page' => $maxPage,
             'total_pages' => $maxPage,
-            'from'        => $from,
-            'to'          => $from + $perPage,
-            'data'        => $data,
+            'from' => $from,
+            'to' => $from + $perPage,
+            'data' => $data,
         ]);
     }
 
@@ -167,8 +171,8 @@ class Builder
 
     /**
      * @param callable $callback
-     * @param int      $limit
-     * @param string   $scroll
+     * @param int $limit
+     * @param string $scroll
      *
      * @return bool
      */
@@ -210,9 +214,9 @@ class Builder
     }
 
     /**
-     * @param array           $data
+     * @param array $data
      * @param string|int|null $id
-     * @param string          $key
+     * @param string $key
      *
      * @return object
      */
@@ -225,20 +229,20 @@ class Builder
             'create'
         );
 
-        if (!isset($result['result']) || $result['result'] !== 'created') {
+        if (! isset($result['result']) || $result['result'] !== 'created') {
             throw new RunTimeException('Create error, params: '.json_encode($this->query->getLastQueryLog()));
         }
 
         $data['_id'] = $id;
         $data['_result'] = $result;
 
-        return (object) $data;
+        return (object)$data;
     }
 
     /**
-     * @param array           $data
+     * @param array $data
      * @param string|int|null $id
-     * @param string          $key
+     * @param string $key
      *
      * @return Collection
      */
@@ -249,7 +253,7 @@ class Builder
 
     /**
      * @param string|int $id
-     * @param array      $data
+     * @param array $data
      *
      * @return bool
      */
@@ -257,7 +261,7 @@ class Builder
     {
         $result = $this->runQuery($this->query->getGrammar()->compileUpdate($this->query, $id, $data), 'update');
 
-        if (!isset($result['result']) || $result['result'] !== 'updated') {
+        if (! isset($result['result']) || $result['result'] !== 'updated') {
             throw new RunTimeException('Update error params: '.json_encode($this->query->getLastQueryLog()));
         }
 
@@ -273,7 +277,7 @@ class Builder
     {
         $result = $this->runQuery($this->query->getGrammar()->compileDelete($this->query, $id), 'delete');
 
-        if (!isset($result['result']) || $result['result'] !== 'deleted') {
+        if (! isset($result['result']) || $result['result'] !== 'deleted') {
             throw new RunTimeException('Delete error params:'.json_encode($this->query->getLastQueryLog()));
         }
 
@@ -291,7 +295,7 @@ class Builder
     }
 
     /**
-     * @param array  $params
+     * @param array $params
      * @param string $method
      *
      * @return mixed
@@ -362,12 +366,12 @@ class Builder
      */
     protected function sourceToObject(array $result): object
     {
-        return (object) array_merge($result['_source'], ['_id' => $result['_id'], '_score' => $result['_score']]);
+        return (object)array_merge($result['_source'], ['_id' => $result['_id'], '_score' => $result['_score']]);
     }
 
     /**
      * @param string $name
-     * @param array  $arguments
+     * @param array $arguments
      *
      * @return mixed
      */
