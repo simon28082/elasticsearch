@@ -222,7 +222,7 @@ class Builder
      */
     public function create(array $data, $id = null, $key = 'id'): object
     {
-        $id = $id ? $id : isset($data[$key]) ? $data[$key] : Uuid::uuid6()->toString();
+        $id = $id ? $id : (isset($data[$key]) ? $data[$key] : Uuid::uuid6()->toString());
 
         $result = $this->runQuery(
             $this->query->getGrammar()->compileCreate($this->query, $id, $data),
